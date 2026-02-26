@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -67,7 +68,8 @@ export default function RegisterPage() {
 
       if (loginRes.ok && loginData?.token) {
         localStorage.setItem("token", loginData.token);
-        if (loginData?.user) localStorage.setItem("user", JSON.stringify(loginData.user));
+        if (loginData?.user)
+          localStorage.setItem("user", JSON.stringify(loginData.user));
       }
 
       setMsg({ type: "ok", text: "Account created. Redirecting..." });
@@ -80,17 +82,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen grid lg:grid-cols-2 bg-[#f8f8f5] dark:bg-[#221f10]">
+    <main className="min-h-screen grid lg:grid-cols-2 page">
+      {/* Left image */}
       <section className="relative hidden lg:block">
-        <Image src={BG} alt="Dress background" fill className="object-cover" priority />
-        <div className="absolute inset-0 bg-black/55" />
+        <Image
+          src={BG}
+          alt="Dress background"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/60" />
         <div className="absolute inset-0 p-12 flex flex-col justify-between">
-          <Link href="/" className="inline-flex items-center gap-2 text-[#f2d00d]">
-            <span className="material-symbols-outlined text-3xl">diamond</span>
-            <span className="text-2xl font-bold tracking-widest font-serif uppercase">
-              LA&apos;KIDA
-            </span>
-          </Link>
+          <BrandLogo />
 
           <div className="max-w-md">
             <h1 className="text-white text-5xl font-bold font-serif leading-tight">
@@ -119,43 +123,61 @@ export default function RegisterPage() {
         </div>
       </section>
 
+      {/* Form */}
       <section className="flex items-center justify-center px-6 py-14">
         <div className="w-full max-w-md">
-          <Link href="/" className="lg:hidden inline-flex items-center gap-2 text-[#f2d00d]">
-            <span className="material-symbols-outlined text-3xl">diamond</span>
-            <span className="text-xl font-bold tracking-widest font-serif uppercase">
-              LA&apos;KIDA
-            </span>
-          </Link>
+          <div className="lg:hidden">
+            <BrandLogo />
+          </div>
 
-          <div className="mt-6 rounded-2xl border border-[#f2d00d]/20 bg-white/70 dark:bg-white/5 p-8 shadow-xl">
+          <div className="mt-6 card p-8 shadow-xl">
             <h2 className="text-2xl font-bold font-serif">Create Account</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              This creates a customer account.
-            </p>
+            <p className="mt-2 text-sm muted">This creates a customer account.</p>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-5">
-              <Field label="Full Name" value={fullName} onChange={setFullName} placeholder="Your name" />
-              <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@email.com" />
-              <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Minimum 6 characters" />
-
-              <button
-                type="submit"
+              <Field
+                label="Full Name"
+                value={fullName}
+                onChange={setFullName}
+                placeholder="Your name"
                 disabled={loading}
-                className="w-full bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110 disabled:opacity-60"
-              >
+              />
+              <Field
+                label="Email"
+                type="email"
+                value={email}
+                onChange={setEmail}
+                placeholder="you@email.com"
+                disabled={loading}
+              />
+              <Field
+                label="Password"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                placeholder="Minimum 6 characters"
+                disabled={loading}
+              />
+
+              <button type="submit" disabled={loading} className="btn-primary w-full py-4 text-sm disabled:opacity-60">
                 {loading ? "Creating..." : "Create Account"}
               </button>
 
               {msg ? (
-                <p className={`text-xs ${msg.type === "ok" ? "text-green-500" : "text-red-500"}`}>
+                <div
+                  className={`rounded-xl border px-4 py-3 text-xs ${
+                    msg.type === "ok"
+                      ? "border-green-500/30 bg-green-500/10 text-green-200"
+                      : "border-red-500/30 bg-red-500/10 text-red-200"
+                  }`}
+                >
                   {msg.text}
-                </p>
+                </div>
               ) : null}
 
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm muted">
                 Already have an account?{" "}
-                <Link href="/login" className="text-[#f2d00d] font-bold hover:underline">
+                <Link href="/login" className="text-[color:var(--accent)] font-bold hover:underline">
                   Login
                 </Link>
               </p>
@@ -173,16 +195,18 @@ function Field({
   onChange,
   type = "text",
   placeholder,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   placeholder?: string;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
@@ -190,7 +214,8 @@ function Field({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+        disabled={!!disabled}
+        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[rgba(242,208,13,0.25)]"
       />
     </div>
   );

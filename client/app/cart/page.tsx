@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 
 type CartItem = {
   productId: string;
@@ -70,13 +71,13 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
+    <main className="page">
       <Header />
 
       <section className="pt-24 pb-10 px-6 lg:px-20">
         <div className="max-w-[1200px] mx-auto flex items-end justify-between gap-4">
           <div>
-            <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
+            <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
               Cart
             </span>
             <h1 className="mt-2 text-4xl md:text-5xl font-bold font-serif">
@@ -87,7 +88,7 @@ export default function CartPage() {
           {items.length > 0 ? (
             <button
               onClick={clearCart}
-              className="border border-red-500/35 text-red-500 px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-red-500/10"
+              className="border border-red-500/35 text-red-200 px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-red-500/10"
             >
               Clear
             </button>
@@ -100,24 +101,16 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.length === 0 ? (
-              <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-10 text-center">
-                <p className="text-slate-700 dark:text-slate-300">
-                  Your cart is empty.
-                </p>
-                <Link
-                  href="/shop"
-                  className="inline-flex mt-5 bg-[#f2d00d] text-[#221f10] px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-sm hover:brightness-110"
-                >
+              <div className="card text-center p-10">
+                <p className="muted">Your cart is empty.</p>
+                <Link href="/shop" className="btn-primary mt-5 px-6 py-3 text-sm">
                   Go to Shop
                 </Link>
               </div>
             ) : (
               items.map((it) => (
-                <div
-                  key={it.productId}
-                  className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-5 flex gap-4"
-                >
-                  <div className="relative w-24 h-28 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-800 flex-shrink-0">
+                <div key={it.productId} className="card p-5 flex gap-4">
+                  <div className="relative w-24 h-28 rounded-xl overflow-hidden bg-black/20 flex-shrink-0 border border-white/10">
                     <Image
                       src={it.image || "/placeholder-1.jpg"}
                       alt={it.title}
@@ -132,7 +125,7 @@ export default function CartPage() {
                         <div className="font-bold font-serif text-lg">
                           {it.title}
                         </div>
-                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                        <div className="text-sm muted">
                           {it.size ? `Size: ${it.size}` : "Size: —"} •{" "}
                           {it.color ? `Color: ${it.color}` : "Color: —"}
                         </div>
@@ -140,21 +133,21 @@ export default function CartPage() {
 
                       <button
                         onClick={() => removeItem(it.productId)}
-                        className="border border-red-500/35 text-red-500 px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-red-500/10"
+                        className="border border-red-500/35 text-red-200 px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-red-500/10"
                       >
                         Remove
                       </button>
                     </div>
 
                     <div className="mt-4 flex items-center justify-between gap-4">
-                      <div className="font-bold text-[#f2d00d]">
+                      <div className="font-bold text-[color:var(--accent)]">
                         {formatNaira(it.price)}
                       </div>
 
                       <div className="inline-flex items-center gap-2">
                         <button
                           onClick={() => updateQty(it.productId, it.qty - 1)}
-                          className="w-10 h-10 rounded-lg border border-[#f2d00d]/25 hover:bg-[#f2d00d]/10 font-bold"
+                          className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
                         >
                           −
                         </button>
@@ -163,7 +156,7 @@ export default function CartPage() {
                         </div>
                         <button
                           onClick={() => updateQty(it.productId, it.qty + 1)}
-                          className="w-10 h-10 rounded-lg border border-[#f2d00d]/25 hover:bg-[#f2d00d]/10 font-bold"
+                          className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
                         >
                           +
                         </button>
@@ -176,17 +169,15 @@ export default function CartPage() {
           </div>
 
           {/* Summary */}
-          <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-6 h-fit">
+          <div className="card h-fit">
             <h2 className="text-xl font-bold font-serif">Summary</h2>
 
             <div className="mt-5 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-slate-300">
-                  Subtotal
-                </span>
+                <span className="muted">Subtotal</span>
                 <span className="font-semibold">{formatNaira(subtotal)}</span>
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-xs muted">
                 Delivery fee will be confirmed at checkout.
               </div>
             </div>
@@ -195,8 +186,8 @@ export default function CartPage() {
               href={items.length ? "/checkout" : "/shop"}
               className={`mt-6 w-full inline-flex items-center justify-center py-4 rounded-lg font-bold uppercase tracking-widest text-sm ${
                 items.length
-                  ? "bg-[#f2d00d] text-[#221f10] hover:brightness-110"
-                  : "bg-slate-300 text-slate-600 cursor-not-allowed"
+                  ? "btn-primary"
+                  : "bg-white/15 text-white/50 cursor-not-allowed"
               }`}
             >
               Proceed to Checkout
@@ -204,12 +195,12 @@ export default function CartPage() {
 
             <Link
               href="/shop"
-              className="mt-3 w-full inline-flex items-center justify-center py-3 rounded-lg font-bold uppercase tracking-widest text-xs border border-[#f2d00d]/35 text-[#f2d00d] hover:bg-[#f2d00d]/10"
+              className="mt-3 w-full btn-outline py-3 text-xs"
             >
               Continue Shopping
             </Link>
 
-            <p className="mt-4 text-xs text-slate-500">
+            <p className="mt-4 text-xs muted">
               Orders are confirmed on WhatsApp after checkout.
             </p>
           </div>
@@ -221,33 +212,25 @@ export default function CartPage() {
 
 function Header() {
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-[#f2d00d]/20 bg-[#221f10]/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+    <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
       <div className="flex items-center gap-10">
-        <Link href="/" className="flex items-center gap-2 text-[#f2d00d]">
-          <span className="material-symbols-outlined text-3xl">diamond</span>
-          <h2 className="text-xl font-bold tracking-widest font-serif uppercase">
-            LA&apos;KIDA
-          </h2>
-        </Link>
+        <BrandLogo />
 
         <nav className="hidden md:flex items-center gap-8">
-          <Link className="text-sm font-medium hover:text-[#f2d00d]" href="/shop">
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/shop">
             Shop
           </Link>
-          <Link className="text-sm font-medium hover:text-[#f2d00d]" href="/custom-order">
-            Custom Desu
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
+            Custom Order
           </Link>
-          <Link className="text-sm font-medium hover:text-[#f2d00d]" href="/contact">
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/contact">
             Contact
           </Link>
         </nav>
       </div>
 
       <div className="flex items-center gap-4">
-        <Link
-          href="/shop"
-          className="border border-[#f2d00d]/35 text-[#f2d00d] px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-[#f2d00d]/10"
-        >
+        <Link href="/shop" className="btn-outline px-5 py-2 text-xs">
           Shop
         </Link>
       </div>

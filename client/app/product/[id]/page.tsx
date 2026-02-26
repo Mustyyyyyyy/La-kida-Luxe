@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import BrandLogo from "@/components/BrandLogo";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 const CART_KEY = "lakida_cart";
@@ -73,7 +74,10 @@ export default function ProductDetailsPage() {
       try {
         setLoading(true);
         setErr("");
-        const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
+
+        const res = await fetch(`${API_URL}/api/products/${id}`, {
+          cache: "no-store",
+        });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.message || "Failed to load product.");
 
@@ -125,37 +129,23 @@ export default function ProductDetailsPage() {
       color: color || "",
     };
 
-    if (idx >= 0) {
-      cart[idx].qty += item.qty;
-    } else {
-      cart.push(item);
-    }
+    if (idx >= 0) cart[idx].qty += item.qty;
+    else cart.push(item);
 
     saveCart(cart);
     showToast("Added to cart");
   }
 
   return (
-    <main className="min-h-screen bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-[#f2d00d]/15 bg-white/70 dark:bg-[#221f10]/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-[#f2d00d]">
-          <span className="material-symbols-outlined text-3xl">diamond</span>
-          <span className="text-xl font-bold tracking-widest font-serif uppercase">
-            LA&apos;KIDA
-          </span>
-        </Link>
+    <main className="page">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+        <BrandLogo />
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/shop"
-            className="border border-[#f2d00d]/35 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
-          >
+          <Link href="/shop" className="btn-outline px-4 py-2 text-xs">
             Shop
           </Link>
-          <Link
-            href="/cart"
-            className="bg-[#f2d00d] text-[#221f10] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:brightness-110"
-          >
+          <Link href="/cart" className="btn-primary px-4 py-2 text-xs">
             Cart
           </Link>
         </div>
@@ -164,16 +154,14 @@ export default function ProductDetailsPage() {
       <section className="px-6 lg:px-20 py-10">
         <div className="max-w-[1200px] mx-auto">
           {loading ? (
-            <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-8 text-sm text-slate-600 dark:text-slate-300">
-              Loading product...
-            </div>
+            <div className="card p-8 text-sm muted">Loading product...</div>
           ) : err ? (
-            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-500">
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-200">
               {err}
               <div className="mt-4">
                 <button
                   onClick={() => router.push("/shop")}
-                  className="bg-[#f2d00d] text-[#221f10] px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-xs hover:brightness-110"
+                  className="btn-primary px-6 py-3 text-xs"
                 >
                   Back to Shop
                 </button>
@@ -181,8 +169,9 @@ export default function ProductDetailsPage() {
             </div>
           ) : product ? (
             <div className="grid lg:grid-cols-2 gap-10">
+              {/* Images */}
               <div className="space-y-4">
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#f2d00d]/15 bg-slate-200 dark:bg-slate-800">
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-black/20">
                   <Image
                     src={mainImage}
                     alt={product.title}
@@ -197,17 +186,23 @@ export default function ProductDetailsPage() {
                     {product.images.map((img) => (
                       <div
                         key={img.publicId}
-                        className="relative w-20 h-24 rounded-xl overflow-hidden border border-[#f2d00d]/15 bg-slate-200 dark:bg-slate-800 flex-shrink-0"
+                        className="relative w-20 h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex-shrink-0"
                       >
-                        <Image src={img.url} alt={product.title} fill className="object-cover" />
+                        <Image
+                          src={img.url}
+                          alt={product.title}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     ))}
                   </div>
                 ) : null}
               </div>
 
-              <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-7 md:p-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#f2d00d] font-bold">
+              {/* Details */}
+              <div className="card p-7 md:p-10">
+                <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent)] font-bold">
                   {product.category || "General"}
                 </p>
 
@@ -215,22 +210,20 @@ export default function ProductDetailsPage() {
                   {product.title}
                 </h1>
 
-                <p className="mt-4 text-2xl font-bold text-[#f2d00d]">
+                <p className="mt-4 text-2xl font-bold text-[color:var(--accent)]">
                   {formatNaira(product.price)}
                 </p>
 
                 <div className="mt-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#f2d00d]/25 bg-[#f2d00d]/10 text-[#f2d00d]">
+                  <span className="badge">
                     {product.inStock === false ? "Out of stock" : "Available"}
                   </span>
                   {typeof product.stockQty === "number" ? (
-                    <span className="ml-3 text-xs text-slate-600 dark:text-slate-300">
-                      Stock: {product.stockQty}
-                    </span>
+                    <span className="ml-3 text-xs muted">Stock: {product.stockQty}</span>
                   ) : null}
                 </div>
 
-                <p className="mt-6 text-slate-700 dark:text-slate-300 leading-relaxed">
+                <p className="mt-6 muted leading-relaxed">
                   {product.description || "Premium finishing and a timeless silhouette."}
                 </p>
 
@@ -258,20 +251,21 @@ export default function ProductDetailsPage() {
                 </div>
 
                 <div className="mt-5">
-                  <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+                  <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
                     Quantity
                   </label>
+
                   <div className="mt-2 inline-flex items-center gap-2">
                     <button
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="w-10 h-10 rounded-lg border border-[#f2d00d]/25 hover:bg-[#f2d00d]/10 font-bold"
+                      className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
                     >
                       −
                     </button>
                     <div className="w-12 text-center font-bold">{qty}</div>
                     <button
                       onClick={() => setQty((q) => q + 1)}
-                      className="w-10 h-10 rounded-lg border border-[#f2d00d]/25 hover:bg-[#f2d00d]/10 font-bold"
+                      className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
                     >
                       +
                     </button>
@@ -279,16 +273,11 @@ export default function ProductDetailsPage() {
                 </div>
 
                 <div className="mt-8 grid sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={addToCartNow}
-                    className="bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110"
-                  >
+                  <button onClick={addToCartNow} className="btn-primary py-4 text-sm">
                     Add to Cart
                   </button>
-                  <Link
-                    href="/custom-order"
-                    className="border border-[#f2d00d]/35 text-[#f2d00d] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-[#f2d00d]/10 text-center"
-                  >
+
+                  <Link href="/custom-order" className="btn-outline py-4 text-sm text-center">
                     Request Custom
                   </Link>
                 </div>
@@ -300,7 +289,7 @@ export default function ProductDetailsPage() {
 
       {toast ? (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
-          <div className="rounded-full border border-[#f2d00d]/25 bg-[#221f10] text-white px-5 py-2 text-sm shadow-xl">
+          <div className="rounded-full border border-[rgba(242,208,13,0.25)] bg-[rgba(20,0,31,0.92)] text-white px-5 py-2 text-sm shadow-xl">
             {toast}
           </div>
         </div>
@@ -322,16 +311,16 @@ function Select({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg px-4 py-3"
+        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-[#f8f8f5] dark:bg-[#221f10]">
+          <option key={o.value} value={o.value} className="bg-[#14001f]">
             {o.label}
           </option>
         ))}

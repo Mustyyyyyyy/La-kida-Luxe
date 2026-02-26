@@ -26,13 +26,11 @@ export default function NewsletterForm() {
         body: JSON.stringify({ email: clean }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         const text =
-          data?.message ||
-          data?.errors?.[0]?.message ||
-          "Could not subscribe.";
+          data?.message || data?.errors?.[0]?.message || "Could not subscribe.";
         setMsg({ type: "err", text });
       } else {
         setMsg({ type: "ok", text: data?.message || "Subscribed!" });
@@ -48,29 +46,32 @@ export default function NewsletterForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-2">
       <input
-        className="bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] text-sm px-4 py-3"
+        className="bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(242,208,13,0.25)]"
         placeholder="Your Email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={loading}
       />
+
       <button
         type="submit"
         disabled={loading}
-        className="bg-[#f2d00d] text-[#221f10] py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110 disabled:opacity-60"
+        className="btn-primary py-3 text-sm disabled:opacity-60"
       >
         {loading ? "Subscribing..." : "Subscribe"}
       </button>
 
       {msg ? (
-        <p
-          className={`text-xs mt-1 ${
-            msg.type === "ok" ? "text-green-400" : "text-red-400"
+        <div
+          className={`rounded-xl border px-4 py-2 text-xs mt-1 ${
+            msg.type === "ok"
+              ? "border-green-500/30 bg-green-500/10 text-green-200"
+              : "border-red-500/30 bg-red-500/10 text-red-200"
           }`}
         >
           {msg.text}
-        </p>
+        </div>
       ) : null}
     </form>
   );

@@ -23,7 +23,9 @@ export default function AdminMessagesPage() {
     try {
       setLoading(true);
       setErr("");
-      const data = await apiFetchAuth<ContactMsg[]>("/api/contact", { method: "GET" });
+      const data = await apiFetchAuth<ContactMsg[]>("/api/contact", {
+        method: "GET",
+      });
       setItems(Array.isArray(data) ? data : []);
     } catch (e: any) {
       setErr(e?.message || "Failed to load messages");
@@ -56,30 +58,27 @@ export default function AdminMessagesPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold font-serif">Messages</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-2 text-sm muted">
             Customer contact submissions. Mark as replied or closed.
           </p>
         </div>
 
-        <button
-          onClick={load}
-          className="border border-[#f2d00d]/35 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
-        >
+        <button onClick={load} className="btn-outline px-4 py-2 text-xs">
           Refresh
         </button>
       </div>
 
       {err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-500">
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200">
           {err}
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 overflow-hidden">
+      <div className="card p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-[1100px] w-full text-sm">
-            <thead className="text-slate-600 dark:text-slate-300">
-              <tr className="border-b border-[#f2d00d]/15">
+            <thead className="muted">
+              <tr className="border-b border-white/10">
                 <th className="text-left py-3 px-5">Customer</th>
                 <th className="text-left py-3 px-5">Message</th>
                 <th className="text-left py-3 px-5">Status</th>
@@ -91,39 +90,33 @@ export default function AdminMessagesPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-10 px-5 text-slate-600 dark:text-slate-300">
+                  <td colSpan={5} className="py-10 px-5 muted">
                     Loading messages...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-10 px-5 text-slate-600 dark:text-slate-300">
+                  <td colSpan={5} className="py-10 px-5 muted">
                     No messages yet.
                   </td>
                 </tr>
               ) : (
                 items.map((m) => (
-                  <tr key={m._id} className="border-b border-[#f2d00d]/10 align-top">
+                  <tr key={m._id} className="border-b border-white/10 align-top">
                     <td className="py-3 px-5">
                       <div className="font-semibold">{m.fullName}</div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs muted">
                         {m.phone || ""} {m.email ? `• ${m.email}` : ""}
                       </div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        ID: {m._id.slice(-6)}
-                      </div>
+                      <div className="text-xs muted mt-1">ID: {m._id.slice(-6)}</div>
                     </td>
 
                     <td className="py-3 px-5">
-                      <div className="text-slate-800 dark:text-slate-100">
-                        {m.message}
-                      </div>
+                      <div className="text-white/90">{m.message}</div>
                     </td>
 
                     <td className="py-3 px-5">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#f2d00d]/25 bg-[#f2d00d]/10 text-[#f2d00d]">
-                        {m.status}
-                      </span>
+                      <span className="badge">{m.status}</span>
                     </td>
 
                     <td className="py-3 px-5">
@@ -131,21 +124,22 @@ export default function AdminMessagesPage() {
                         <button
                           disabled={busyId === m._id}
                           onClick={() => setStatus(m._id, "replied")}
-                          className="border border-[#f2d00d]/35 text-[#f2d00d] px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-[#f2d00d]/10 disabled:opacity-60"
+                          className="btn-outline px-3 py-2 text-[10px] disabled:opacity-60"
                         >
                           {busyId === m._id ? "..." : "Mark Replied"}
                         </button>
+
                         <button
                           disabled={busyId === m._id}
                           onClick={() => setStatus(m._id, "closed")}
-                          className="border border-slate-400/35 text-slate-600 dark:text-slate-200 px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 disabled:opacity-60"
+                          className="px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] border border-white/15 text-white/80 hover:bg-white/10 disabled:opacity-60"
                         >
                           {busyId === m._id ? "..." : "Close"}
                         </button>
                       </div>
                     </td>
 
-                    <td className="py-3 px-5 text-slate-600 dark:text-slate-300">
+                    <td className="py-3 px-5 muted">
                       {new Date(m.createdAt).toLocaleString()}
                     </td>
                   </tr>
@@ -155,7 +149,6 @@ export default function AdminMessagesPage() {
           </table>
         </div>
       </div>
-
     </div>
   );
 }

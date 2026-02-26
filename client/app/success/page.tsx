@@ -1,9 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import BrandLogo from "@/components/BrandLogo";
 
 const CART_KEY = "lakida_cart";
 const LAST_ORDER_KEY = "lakida_last_order";
@@ -90,26 +90,18 @@ export default function SuccessPage() {
   const waUrl = waLink(waNumber, waMessage);
 
   return (
-    <main className="min-h-screen bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
-      <header className="sticky top-0 z-40 border-b border-[#f2d00d]/15 bg-white/70 dark:bg-[#221f10]/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-[#f2d00d]">
-          <span className="material-symbols-outlined text-3xl">diamond</span>
-          <span className="text-xl font-bold tracking-widest font-serif uppercase">
-            LA&apos;KIDA
-          </span>
-        </Link>
+    <main className="page">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+        <BrandLogo />
 
-        <Link
-          href="/shop"
-          className="border border-[#f2d00d]/35 text-[#f2d00d] px-5 py-2 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-[#f2d00d]/10"
-        >
+        <Link href="/shop" className="btn-outline px-5 py-2 text-xs">
           Shop
         </Link>
       </header>
 
       <section className="px-6 lg:px-20 py-16">
-        <div className="max-w-[900px] mx-auto rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-8 md:p-10 text-center">
-          <div className="mx-auto w-14 h-14 rounded-full bg-[#f2d00d]/15 flex items-center justify-center text-[#f2d00d]">
+        <div className="max-w-[900px] mx-auto card p-8 md:p-10 text-center">
+          <div className="mx-auto w-14 h-14 rounded-full bg-[rgba(242,208,13,0.12)] flex items-center justify-center text-[color:var(--accent)]">
             <span className="material-symbols-outlined text-3xl">check_circle</span>
           </div>
 
@@ -117,12 +109,12 @@ export default function SuccessPage() {
             Order Created
           </h1>
 
-          <p className="mt-3 text-slate-700 dark:text-slate-300">
+          <p className="mt-3 muted">
             Your order has been created successfully. Next step: confirm on WhatsApp.
           </p>
 
           {orderCode ? (
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#f2d00d]/25 bg-[#f2d00d]/10 px-5 py-2 text-sm font-bold text-[#f2d00d]">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[rgba(242,208,13,0.25)] bg-[rgba(242,208,13,0.10)] px-5 py-2 text-sm font-bold text-[color:var(--accent)]">
               Order Code: {orderCode}
             </div>
           ) : null}
@@ -132,20 +124,19 @@ export default function SuccessPage() {
               href={waUrl}
               target="_blank"
               rel="noreferrer"
-              className="bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold uppercase tracking-widest text-sm hover:brightness-110"
+              className="btn-primary py-4 text-sm"
             >
               Open WhatsApp
             </a>
 
-            <Link
-              href="/shop"
-              className="border border-[#f2d00d]/35 text-[#f2d00d] py-4 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-[#f2d00d]/10"
-            >
+            <Link href="/shop" className="btn-outline py-4 text-sm text-center">
               Continue Shopping
             </Link>
           </div>
 
-
+          <p className="mt-6 text-xs muted">
+            If WhatsApp doesn’t open, copy your order code and message us manually.
+          </p>
         </div>
       </section>
     </main>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getProducts } from "@/lib/api";
+import BrandLogo from "@/components/BrandLogo";
 
 type Product = {
   _id: string;
@@ -41,12 +42,12 @@ export default async function HomePage() {
   ];
 
   return (
-    <main className="bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
+    <main className="page">
       <Header />
 
       <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-black/45 z-10" />
+          <div className="absolute inset-0 bg-black/50 z-10" />
           <div className="absolute inset-0">
             <Image
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOO59_EHre-MkrNUXU0f4HahP1eW2UERAfZswRyTHdj0jh_WYDCuYjqAhWixHmMBmvp8ZZd5Mk49hCenMdQqp6e5vFV0mM5Og9w0mj3aQRmLjccxA5Tzs8t2AQLC_3WMI9mccIh-5NgoVJosgJdD-6dPq9IaUc0oI_CTzrrqYbTwynHO_l6kFC3ID0z7lGJJnbMjjFIMC9pmEfsExZh51hDfNuzLxO8epnoCNXZRYEIe9SdtmUJ3mLKuxpLG7WLu10T5DoYqTAsM"
@@ -62,21 +63,15 @@ export default async function HomePage() {
           <h1 className="text-5xl md:text-8xl font-bold text-white mb-6 tracking-tight">
             LA&apos;KIDA
           </h1>
-          <p className="text-xl md:text-2xl text-[#f2d00d] italic mb-10 font-serif">
+          <p className="text-xl md:text-2xl text-[color:var(--accent)] italic mb-10 font-serif">
             Designed to be Unusually Classy.
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link
-              href="/shop"
-              className="bg-[#f2d00d] text-[#221f10] px-10 py-4 rounded-lg font-bold text-lg hover:scale-[1.02] transition-transform"
-            >
+            <Link href="/shop" className="btn-primary px-10 py-4 text-lg">
               Shop Now
             </Link>
-            <Link
-              href="/custom-order"
-              className="border-2 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors"
-            >
+            <Link href="/custom-order" className="btn-outline px-10 py-4 text-lg">
               Request Custom Designs.
             </Link>
           </div>
@@ -103,7 +98,7 @@ export default async function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
+              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
                 Explore
               </span>
               <h2 className="text-3xl md:text-4xl font-bold mt-2 font-serif">
@@ -112,7 +107,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/shop"
-              className="text-sm font-medium text-[#f2d00d] hover:underline"
+              className="text-sm font-medium text-[color:var(--accent)] hover:underline"
             >
               View all →
             </Link>
@@ -123,17 +118,15 @@ export default async function HomePage() {
               <Link
                 key={c.name}
                 href={c.href}
-                className="group rounded-2xl border border-[#f2d00d]/20 bg-white/60 dark:bg-white/5 p-6 hover:bg-white/80 dark:hover:bg-white/10 transition"
+                className="card-soft p-6 hover:brightness-[1.05] transition"
               >
-                <div className="w-12 h-12 rounded-full bg-[#f2d00d]/15 flex items-center justify-center text-[#f2d00d] mb-4">
+                <div className="w-12 h-12 rounded-full bg-[rgba(242,208,13,0.12)] flex items-center justify-center text-[color:var(--accent)] mb-4">
                   <span className="material-symbols-outlined">{c.icon}</span>
                 </div>
                 <h3 className="text-xl font-bold font-serif">{c.name}</h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  View pieces →
-                </p>
-                <div className="mt-4 h-px bg-[#f2d00d]/15" />
-                <p className="mt-4 text-xs uppercase tracking-widest text-[#f2d00d] font-bold">
+                <p className="text-sm muted mt-1">View pieces →</p>
+                <div className="mt-4 h-px bg-[rgba(242,208,13,0.12)]" />
+                <p className="mt-4 text-xs uppercase tracking-widest text-[color:var(--accent)] font-bold">
                   Browse
                 </p>
               </Link>
@@ -146,7 +139,7 @@ export default async function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
+              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
                 New Arrivals
               </span>
               <h2 className="text-3xl md:text-5xl font-bold mt-2 font-serif">
@@ -155,16 +148,16 @@ export default async function HomePage() {
             </div>
             <Link
               href="/shop"
-              className="text-sm font-medium text-[#f2d00d] hover:underline"
+              className="text-sm font-medium text-[color:var(--accent)] hover:underline"
             >
               View all →
             </Link>
           </div>
 
           {newArrivals.length === 0 ? (
-            <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/50 dark:bg-white/5 p-10 text-center">
+            <div className="card text-center py-12">
               <div className="mt-4">
-                <span className="material-symbols-outlined text-4xl text-[#f2d00d]">
+                <span className="material-symbols-outlined text-4xl text-[color:var(--accent)]">
                   inventory_2
                 </span>
               </div>
@@ -175,17 +168,17 @@ export default async function HomePage() {
                 <Link
                   key={p._id}
                   href={`/product/${p._id}`}
-                  className="group rounded-2xl overflow-hidden bg-white/70 dark:bg-white/5 border border-[#f2d00d]/15 hover:shadow-xl transition"
+                  className="group rounded-2xl overflow-hidden border border-[rgba(242,208,13,0.15)] bg-[rgba(255,255,255,0.06)] hover:shadow-xl transition"
                 >
-                  <div className="relative aspect-[3/4] bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                  <div className="relative aspect-[3/4] bg-black/20 overflow-hidden">
                     <Image
                       src={pickImage(p)}
                       alt={p.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
-                      <span className="w-full bg-white text-[#221f10] py-3 rounded-lg font-bold uppercase text-sm tracking-widest text-center">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
+                      <span className="w-full bg-white text-black py-3 rounded-lg font-bold uppercase text-sm tracking-widest text-center">
                         View Details
                       </span>
                     </div>
@@ -193,12 +186,10 @@ export default async function HomePage() {
 
                   <div className="p-5">
                     <h3 className="text-xl font-bold font-serif">{p.title}</h3>
-                    <p className="mt-1 text-[#f2d00d] font-semibold">
+                    <p className="mt-1 text-[color:var(--accent)] font-semibold">
                       {formatNaira(p.price)}
                     </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                      {p.category || "General"}
-                    </p>
+                    <p className="mt-2 text-sm muted">{p.category || "General"}</p>
                   </div>
                 </Link>
               ))}
@@ -207,19 +198,16 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section
-        className="py-20 px-6 lg:px-20 bg-[#f8f8f5] dark:bg-[#1a180d]"
-        id="atelier"
-      >
+      <section className="py-20 px-6 lg:px-20" id="atelier">
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-14 items-center">
           <div>
-            <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
+            <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
               Bespoke Service
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-6 font-serif">
               The LA&apos;KIDA Atelier
             </h2>
-            <p className="text-lg leading-relaxed text-slate-700 dark:text-slate-300 mb-8">
+            <p className="text-lg leading-relaxed muted mb-8">
               Experience the pinnacle of personalization. Our master tailors collaborate
               with you to create a unique piece that celebrates your heritage and silhouette.
               Every stitch tells your story.
@@ -232,22 +220,16 @@ export default async function HomePage() {
             </div>
 
             <div className="mt-10 flex gap-3">
-              <Link
-                href="/custom-order"
-                className="bg-[#f2d00d] text-[#221f10] px-7 py-3 rounded-lg font-bold uppercase tracking-widest text-sm hover:brightness-110"
-              >
+              <Link href="/custom-order" className="btn-primary px-7 py-3 text-sm">
                 Start Custom Order
               </Link>
-              <Link
-                href="/contact"
-                className="border border-[#f2d00d]/40 text-[#f2d00d] px-7 py-3 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-[#f2d00d]/10"
-              >
+              <Link href="/contact" className="btn-outline px-7 py-3 text-sm">
                 Contact
               </Link>
             </div>
           </div>
 
-          <div className="bg-[#221f10] border border-[#f2d00d]/20 p-8 md:p-10 rounded-2xl shadow-2xl">
+          <div className="card">
             <h3 className="text-2xl font-bold mb-6 text-center font-serif">
               Quick Consultation
             </h3>
@@ -258,35 +240,32 @@ export default async function HomePage() {
                 <Input label="Last Name" placeholder="Bakare" />
               </div>
               <Input label="Email Address" placeholder="olamide@luxury.com" type="email" />
+
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+                <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
                   Service Interest
                 </label>
-                <select className="w-full bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] text-white px-4 py-3">
-                  <option className="bg-[#221f10]">Bridal Couture</option>
-                  <option className="bg-[#221f10]">Red Carpet</option>
-                  <option className="bg-[#221f10]">Bespoke Suit</option>
+                <select className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3">
+                  <option className="bg-[#14001f]">Bridal Couture</option>
+                  <option className="bg-[#14001f]">Red Carpet</option>
+                  <option className="bg-[#14001f]">Bespoke Suit</option>
                 </select>
               </div>
+
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+                <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
                   Message / Vision
                 </label>
                 <textarea
-                  className="w-full bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] text-white px-4 py-3"
+                  className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
                   placeholder="Tell us about your occasion..."
                   rows={4}
                 />
               </div>
 
-              <button
-                type="button"
-                className="w-full bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-lg hover:brightness-110 transition-all uppercase tracking-widest"
-              >
+              <button type="button" className="btn-primary w-full py-4 text-sm">
                 Book Consultation
               </button>
-
-            
             </form>
           </div>
         </div>
@@ -294,7 +273,7 @@ export default async function HomePage() {
 
       <section className="py-20 px-6 lg:px-20 overflow-hidden">
         <div className="text-center mb-12">
-          <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
+          <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
             Visual Story
           </span>
           <h2 className="text-3xl md:text-6xl font-bold mt-4 font-serif">
@@ -323,32 +302,23 @@ export default async function HomePage() {
   );
 }
 
-
 function Header() {
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-[#f2d00d]/20 bg-[#221f10]/80 backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+    <header className="fixed top-0 w-full z-50 border-b border-[rgba(242,208,13,0.18)] bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
       <div className="flex items-center gap-12">
-        <Link href="/" className="flex items-center gap-2 text-[#f2d00d]">
-          <span className="material-symbols-outlined text-3xl">diamond</span>
-          <h2 className="text-xl font-bold tracking-widest font-serif uppercase">
-            LA&apos;KIDA
-          </h2>
-        </Link>
+        <BrandLogo />
 
         <nav className="hidden md:flex items-center gap-8">
-          <Link className="text-sm font-medium hover:text-[#f2d00d] transition-colors" href="/shop">
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)] transition-colors" href="/shop">
             Shop
           </Link>
-          <Link
-            className="text-sm font-medium hover:text-[#f2d00d] transition-colors"
-            href="/custom-order"
-          >
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)] transition-colors" href="/custom-order">
             Custom Order
           </Link>
-          <Link className="text-sm font-medium hover:text-[#f2d00d] transition-colors" href="/about">
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)] transition-colors" href="/about">
             About
           </Link>
-          <Link className="text-sm font-medium hover:text-[#f2d00d] transition-colors" href="/contact">
+          <Link className="text-sm font-medium hover:text-[color:var(--accent)] transition-colors" href="/contact">
             Contact
           </Link>
         </nav>
@@ -357,30 +327,21 @@ function Header() {
       <div className="flex items-center gap-4">
         <Link
           href="/cart"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[#f2d00d]/30 text-[#f2d00d] hover:bg-[#f2d00d]/10"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[rgba(242,208,13,0.30)] text-[color:var(--accent)] hover:bg-[rgba(242,208,13,0.10)]"
           aria-label="Cart"
         >
           <span className="material-symbols-outlined">shopping_bag</span>
         </Link>
 
-        <Link
-          href="/shop"
-          className="bg-[#f2d00d] text-[#221f10] px-6 py-2 rounded-lg font-bold text-sm tracking-wide hover:brightness-110 transition-all uppercase"
-        >
+        <Link href="/shop" className="btn-primary px-6 py-2 text-xs">
           Shop Now
         </Link>
 
-        <Link
-          href="/login"
-          className="ml-4 text-sm font-medium text-[#f2d00d]/70 hover:text-[#f2d00d] transition-colors"
-        >
+        <Link href="/login" className="ml-4 text-sm font-medium text-white/70 hover:text-white transition-colors">
           Login
         </Link>
 
-        <Link
-          href="/register"
-          className="ml-4 text-sm font-medium text-[#f2d00d]/70 hover:text-[#f2d00d] transition-colors"
-        >
+        <Link href="/register" className="ml-4 text-sm font-medium text-white/70 hover:text-white transition-colors">
           Register
         </Link>
       </div>
@@ -390,8 +351,8 @@ function Header() {
 
 function Feature({ icon, label }: { icon: string; label: string }) {
   return (
-    <div className="flex flex-col items-center p-4 bg-[#f2d00d]/5 rounded-xl border border-[#f2d00d]/20">
-      <div className="w-12 h-12 rounded-full bg-[#f2d00d]/20 flex items-center justify-center text-[#f2d00d] mb-3">
+    <div className="rounded-xl border border-[rgba(242,208,13,0.18)] bg-[rgba(255,255,255,0.06)] p-4 flex flex-col items-center">
+      <div className="w-12 h-12 rounded-full bg-[rgba(242,208,13,0.12)] flex items-center justify-center text-[color:var(--accent)] mb-3">
         <span className="material-symbols-outlined">{icon}</span>
       </div>
       <span className="text-xs font-bold uppercase tracking-wider text-center">
@@ -412,13 +373,13 @@ function Input({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
         type={type}
         placeholder={placeholder}
-        className="w-full bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] text-white px-4 py-3"
+        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
       />
     </div>
   );
@@ -426,7 +387,7 @@ function Input({
 
 function GalleryCard({ title, src }: { title: string; src: string }) {
   return (
-    <div className="relative group rounded-xl overflow-hidden break-inside-avoid">
+    <div className="relative group rounded-xl overflow-hidden break-inside-avoid border border-[rgba(242,208,13,0.10)]">
       <Image
         src={src}
         alt={title}
@@ -443,70 +404,66 @@ function GalleryCard({ title, src }: { title: string; src: string }) {
 
 function Footer() {
   return (
-    <footer className="bg-[#1a180d] text-slate-100 py-16 px-6 lg:px-20 border-t border-[#f2d00d]/10">
+    <footer className="bg-[rgba(20,0,31,1)] text-white py-16 px-6 lg:px-20 border-t border-[rgba(242,208,13,0.12)]">
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
         <div className="space-y-6">
-          <div className="flex items-center gap-2 text-[#f2d00d]">
-            <span className="material-symbols-outlined text-3xl">diamond</span>
-            <h2 className="text-xl font-bold tracking-widest font-serif uppercase">
-              LA&apos;KIDA
-            </h2>
-          </div>
-          <p className="text-slate-400 text-sm leading-relaxed">
+          <BrandLogo />
+
+          <p className="muted text-sm leading-relaxed">
             Redefining luxury through the lens of African craftsmanship. Each piece is
             a tribute to heritage and future vision.
           </p>
-          <p className="text-slate-400 text-sm">Lagos, Nigeria</p>
+          <p className="muted text-sm">Lagos, Nigeria</p>
         </div>
 
         <div>
-          <h4 className="text-[#f2d00d] font-bold uppercase tracking-widest text-sm mb-6">
+          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
             Explore
           </h4>
-          <ul className="space-y-4 text-sm text-slate-400">
-            <li><Link className="hover:text-[#f2d00d]" href="/shop">Shop</Link></li>
-            <li><Link className="hover:text-[#f2d00d]" href="/custom-order">Custom Order</Link></li>
-            <li><Link className="hover:text-[#f2d00d]" href="/about">About</Link></li>
-            <li><Link className="hover:text-[#f2d00d]" href="/contact">Contact</Link></li>
+          <ul className="space-y-4 text-sm muted">
+            <li><Link className="hover:text-[color:var(--accent)]" href="/shop">Shop</Link></li>
+            <li><Link className="hover:text-[color:var(--accent)]" href="/custom-order">Custom Order</Link></li>
+            <li><Link className="hover:text-[color:var(--accent)]" href="/about">About</Link></li>
+            <li><Link className="hover:text-[color:var(--accent)]" href="/contact">Contact</Link></li>
           </ul>
         </div>
 
         <div>
-          <h4 className="text-[#f2d00d] font-bold uppercase tracking-widest text-sm mb-6">
+          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
             Concierge
           </h4>
-          <ul className="space-y-4 text-sm text-slate-400">
-            <li><Link className="hover:text-[#f2d00d]" href="/policies">Shipping & Returns</Link></li>
-            <li><Link className="hover:text-[#f2d00d]" href="/policies">Size Guide</Link></li>
-            <li><Link className="hover:text-[#f2d00d]" href="/policies">FAQ</Link></li>
+          <ul className="space-y-4 text-sm muted">
+            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Shipping & Returns</Link></li>
+            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Size Guide</Link></li>
+            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">FAQ</Link></li>
           </ul>
         </div>
 
         <div className="space-y-4">
-          <h4 className="text-[#f2d00d] font-bold uppercase tracking-widest text-sm">
+          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm">
             Newsletter
           </h4>
-          <p className="text-slate-400 text-sm">
+          <p className="muted text-sm">
             Join the inner circle for exclusive previews.
           </p>
           <div className="flex flex-col gap-2">
             <input
-              className="bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] text-sm px-4 py-3"
+              className="bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg text-sm px-4 py-3"
               placeholder="Your Email"
               type="email"
             />
-            <button className="bg-[#f2d00d] text-[#221f10] py-3 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110">
+            <button className="btn-primary py-3 text-xs">
               Subscribe
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto mt-12 pt-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 uppercase tracking-[0.2em]">
-        <p>© {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.</p>
+      <div className="max-w-[1400px] mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs muted uppercase tracking-[0.2em]">
+        <p>©️ {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.</p>
         <div className="flex gap-8">
-          <Link className="hover:text-[#f2d00d]" href="/policies">Privacy</Link>
-          <Link className="hover:text-[#f2d00d]" href="/policies">Terms</Link>
+          <Link className="hover:text-[color:var(--accent)]" href="/policies">Privacy</Link>
+          <Link className="hover:text-[color:var(--accent)]" href="/policies">Terms</Link>
         </div>
       </div>
     </footer>

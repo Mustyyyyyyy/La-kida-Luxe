@@ -58,16 +58,16 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-5">
-      <Field label="Full Name" value={fullName} onChange={setFullName} />
-      <Field label="Email" type="email" value={email} onChange={setEmail} />
-      <Field label="Phone" value={phone} onChange={setPhone} />
+      <Field label="Full Name" value={fullName} onChange={setFullName} disabled={loading} />
+      <Field label="Email" type="email" value={email} onChange={setEmail} disabled={loading} />
+      <Field label="Phone" value={phone} onChange={setPhone} disabled={loading} />
 
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+        <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
           Message
         </label>
         <textarea
-          className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+          className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[rgba(242,208,13,0.25)]"
           rows={5}
           placeholder="Tell us what you need..."
           value={message}
@@ -76,18 +76,20 @@ export default function ContactForm() {
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110 disabled:opacity-60"
-      >
+      <button type="submit" disabled={loading} className="btn-primary w-full py-4 text-sm disabled:opacity-60">
         {loading ? "Sending..." : "Send Message"}
       </button>
 
       {msg ? (
-        <p className={`text-xs ${msg.type === "ok" ? "text-green-400" : "text-red-400"}`}>
+        <div
+          className={`rounded-xl border px-4 py-3 text-xs ${
+            msg.type === "ok"
+              ? "border-green-500/30 bg-green-500/10 text-green-200"
+              : "border-red-500/30 bg-red-500/10 text-red-200"
+          }`}
+        >
           {msg.text}
-        </p>
+        </div>
       ) : null}
     </form>
   );
@@ -98,23 +100,25 @@ function Field({
   type = "text",
   value,
   onChange,
+  disabled,
 }: {
   label: string;
   type?: string;
   value: string;
   onChange: (v: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
         type={type}
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[rgba(242,208,13,0.25)]"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        disabled={false}
+        disabled={!!disabled}
       />
     </div>
   );

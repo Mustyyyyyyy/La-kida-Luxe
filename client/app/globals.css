@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* your custom css below */
 html,
 body {
   height: 100%;
@@ -25,20 +24,66 @@ h3,
 }
 
 :root {
-  color-scheme: light;
-}
-.dark {
-  color-scheme: dark;
+  --bg: #14001f;                
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.10);
+
+  --text: #f7f3ff;
+  --muted: rgba(247, 243, 255, 0.72);
+
+  --accent: #f2d00d;           
+  --accent-2: #c084fc;           
+  --accent-text: #14001f;        
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+html, body {
+  background: var(--bg);
+  color: var(--text);
 }
 
-::selection {
-  background: rgba(242, 208, 13, 0.25);
+@layer components {
+  .page {
+    @apply min-h-screen;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .card {
+    @apply rounded-2xl border p-6;
+    border-color: rgba(242, 208, 13, 0.15);
+    background: var(--surface);
+  }
+
+  .card-soft {
+    @apply rounded-2xl border;
+    border-color: rgba(242, 208, 13, 0.12);
+    background: var(--surface-2);
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg font-bold uppercase tracking-widest transition;
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .btn-primary:hover { filter: brightness(1.07); }
+  .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-lg font-bold uppercase tracking-widest transition border;
+    border-color: rgba(242, 208, 13, 0.35);
+    color: var(--accent);
+    background: transparent;
+  }
+  .btn-outline:hover { background: rgba(242, 208, 13, 0.10); }
+
+  .badge {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold;
+    border-color: rgba(242, 208, 13, 0.25);
+    background: rgba(242, 208, 13, 0.10);
+    color: var(--accent);
+  }
 }
