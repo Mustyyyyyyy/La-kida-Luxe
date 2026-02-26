@@ -1,5 +1,4 @@
-// Generic Zod validation middleware
-exports.validate = (schema) => (req, res, next) => {
+module.exports.validate = (schema) => (req, res, next) => {
   try {
     const result = schema.safeParse({
       body: req.body,
@@ -8,19 +7,20 @@ exports.validate = (schema) => (req, res, next) => {
     });
 
     if (!result.success) {
+      const errors = result.error.issues.map((i) => ({
+        path: i.path.join("."),
+        message: i.message,
+      }));
+
       return res.status(400).json({
         message: "Validation error",
-        errors: result.error.issues.map((i) => ({
-          path: i.path.join("."),
-          message: i.message,
-        })),
+        errors,
       });
     }
 
-    // Optional: attach parsed data (cleaned)
     req.validated = result.data;
 
-    next();
+    return next();
   } catch (e) {
     return res.status(400).json({ message: "Invalid request" });
   }
