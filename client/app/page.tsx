@@ -24,7 +24,6 @@ function pickImage(p: Product) {
 }
 
 export default async function HomePage() {
-  // New arrivals from backend
   let products: Product[] = [];
   try {
     products = await getProducts();
@@ -325,17 +324,17 @@ function Header() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link
+        {/* <Link
           href="/cart"
           className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[rgba(242,208,13,0.30)] text-[color:var(--accent)] hover:bg-[rgba(242,208,13,0.10)]"
           aria-label="Cart"
         >
           <span className="material-symbols-outlined">shopping_bag</span>
-        </Link>
+        </Link> */}
 
-        <Link href="/shop" className="btn-primary px-6 py-2 text-xs">
+        {/* <Link href="/shop" className="btn-primary px-6 py-2 text-xs">
           Shop Now
-        </Link>
+        </Link> */}
 
         <Link href="/login" className="ml-4 text-sm font-medium text-white/70 hover:text-white transition-colors">
           Login

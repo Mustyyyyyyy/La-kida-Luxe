@@ -188,7 +188,6 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Grid */}
       <section className="px-6 lg:px-20 pb-20">
         <div className="max-w-[1400px] mx-auto">
           {err ? (
