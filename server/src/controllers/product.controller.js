@@ -1,79 +1,111 @@
 const Product = require("../models/Product");
-const cloudinary = require("../config/cloudinary");
+const cloudinary = require("../config/cloudinary"); 
 
-exports.listProducts = async (req, res) => {
-  const { q, category } = req.query;
-
-  const filter = {};
-  if (category) filter.category = category;
-  if (q) filter.title = { $regex: String(q), $options: "i" };
-
-  const products = await Product.find(filter).sort({ createdAt: -1 });
-  res.json(products);
+exports.getProducts = async (req, res) => {
+  try {
+    const items = await Product.find().sort({ createdAt: -1 });
+    res.json(items);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
-exports.getProduct = async (req, res) => {
-  const p = await Product.findById(req.params.id);
-  if (!p) return res.status(404).json({ message: "Not found" });
-  res.json(p);
+exports.getProductById = async (req, res) => {
+  try {
+    const item = await Product.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: "Product not found" });
+    res.json(item);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 exports.createProduct = async (req, res) => {
   try {
-   const data = req.validated.body;
-    const created = await Product.create(data);
+    const {
+      title,
+      price,
+      category,
+      description,
+      images = [],
+      sizes = [],
+      colors = [],
+      stockQty = 0,
+      inStock = true,
+    } = req.body;
+
+    if (!title || price === undefined) {
+      return res.status(400).json({ message: "title and price are required" });
+    }
+
+    const created = await Product.create({
+      title,
+      price: Number(price),
+      category: category || "General",
+      description: description || "",
+      images,
+      sizes,
+      colors,
+      stockQty: Number(stockQty) || 0,
+      inStock: Boolean(inStock),
+    });
+
     res.json(created);
   } catch (e) {
     console.error(e);
-    res.status(400).json({ message: "Invalid product data" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 exports.updateProduct = async (req, res) => {
   try {
-    const data = req.validated.body;
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.validated.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Not found" });
+    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    if (!updated) return res.status(404).json({ message: "Product not found" });
+
     res.json(updated);
   } catch (e) {
     console.error(e);
-    res.status(400).json({ message: "Invalid update data" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 exports.deleteProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: "Not found" });
+  try {
+    const deleted = await Product.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Product not found" });
 
-  const publicIds = (product.images || []).map((img) => img.publicId).filter(Boolean);
+    // optional: delete cloudinary images
+    // if you store publicId and have cloudinary config:
+    // for (const img of deleted.images || []) {
+    //   if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
+    // }
 
-  if (publicIds.length) {
-    try {
-      await cloudinary.api.delete_resources(publicIds);
-    } catch (e) {
-      console.error("Cloudinary delete error:", e?.message || e);
-    }
+    res.json({ message: "Deleted" });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Server error" });
   }
-
-  await Product.findByIdAndDelete(req.params.id);
-  res.json({ message: "Deleted" });
 };
 
-exports.removeProductImage = async (req, res) => {
-  const { publicId } = req.validated.body;
-  if (!publicId) return res.status(400).json({ message: "publicId required" });
-
-  const product = await Product.findById(req.params.id);
-  if (!product) return res.status(404).json({ message: "Not found" });
-
-  product.images = (product.images || []).filter((img) => img.publicId !== publicId);
-  await product.save();
-
+exports.removeImage = async (req, res) => {
   try {
-    await cloudinary.uploader.destroy(publicId);
-  } catch (e) {
-    console.error("Cloudinary destroy error:", e?.message || e);
-  }
+    const { publicId } = req.body;
+    if (!publicId) return res.status(400).json({ message: "publicId is required" });
 
-  res.json(product);
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    product.images = (product.images || []).filter((img) => img.publicId !== publicId);
+    await product.save();
+    
+    res.json(product);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Server error" });
+  }
 };
