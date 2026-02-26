@@ -44,7 +44,6 @@ export default async function HomePage() {
     <main className="bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
       <Header />
 
-      {/* HERO */}
       <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-black/45 z-10" />
@@ -64,7 +63,7 @@ export default async function HomePage() {
             LA&apos;KIDA
           </h1>
           <p className="text-xl md:text-2xl text-[#f2d00d] italic mb-10 font-serif">
-            The Essence of High-End African Fashion
+            Designed to be Unusually Classy.
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
@@ -78,7 +77,7 @@ export default async function HomePage() {
               href="/custom-order"
               className="border-2 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors"
             >
-              Request Custom Tailoring
+              Request Custom Designs.
             </Link>
           </div>
 
@@ -100,7 +99,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
       <section className="py-16 px-6 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
@@ -144,7 +142,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* NEW ARRIVALS (backend connected) */}
       <section className="py-16 px-6 lg:px-20" id="collections">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
@@ -166,16 +163,10 @@ export default async function HomePage() {
 
           {newArrivals.length === 0 ? (
             <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/50 dark:bg-white/5 p-10 text-center">
-              <p className="text-slate-700 dark:text-slate-300">
-                No products yet. Add products from the admin panel and they’ll show here.
-              </p>
               <div className="mt-4">
-                <Link
-                  href="/admin/login"
-                  className="inline-flex items-center justify-center bg-[#f2d00d] text-[#221f10] px-6 py-3 rounded-lg font-bold"
-                >
-                  Go to Admin
-                </Link>
+                <span className="material-symbols-outlined text-4xl text-[#f2d00d]">
+                  inventory_2
+                </span>
               </div>
             </div>
           ) : (
@@ -216,7 +207,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ATELIER / CUSTOM */}
       <section
         className="py-20 px-6 lg:px-20 bg-[#f8f8f5] dark:bg-[#1a180d]"
         id="atelier"
@@ -262,7 +252,6 @@ export default async function HomePage() {
               Quick Consultation
             </h3>
 
-            {/* UI-only form (we'll connect later) */}
             <form className="space-y-5">
               <div className="grid md:grid-cols-2 gap-4">
                 <Input label="First Name" placeholder="Olamide" />
@@ -297,15 +286,12 @@ export default async function HomePage() {
                 Book Consultation
               </button>
 
-              <p className="text-xs text-center text-white/60">
-                We’ll connect this to WhatsApp + backend next.
-              </p>
+            
             </form>
           </div>
         </div>
       </section>
 
-      {/* GALLERY */}
       <section className="py-20 px-6 lg:px-20 overflow-hidden">
         <div className="text-center mb-12">
           <span className="text-[#f2d00d] font-bold tracking-widest uppercase text-sm">
@@ -337,7 +323,6 @@ export default async function HomePage() {
   );
 }
 
-/* ---------------- Components (kept inside same file for easy copy) ---------------- */
 
 function Header() {
   return (
@@ -383,6 +368,20 @@ function Header() {
           className="bg-[#f2d00d] text-[#221f10] px-6 py-2 rounded-lg font-bold text-sm tracking-wide hover:brightness-110 transition-all uppercase"
         >
           Shop Now
+        </Link>
+
+        <Link
+          href="/login"
+          className="ml-4 text-sm font-medium text-[#f2d00d]/70 hover:text-[#f2d00d] transition-colors"
+        >
+          Login
+        </Link>
+
+        <Link
+          href="/register"
+          className="ml-4 text-sm font-medium text-[#f2d00d]/70 hover:text-[#f2d00d] transition-colors"
+        >
+          Register
         </Link>
       </div>
     </header>

@@ -4,7 +4,7 @@ const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 
 const { validate } = require("../middleware/validate");
-const { createOrderSchema, updateOrderStatusSchema } = require("../Validators/order.zod");
+const { createOrderSchema, updateOrderStatusSchema } = require("../validators/order.zod");
 
 router.post("/", validate(createOrderSchema), ctrl.createOrder);
 

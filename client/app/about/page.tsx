@@ -76,7 +76,7 @@ export default function AboutPage() {
                 href="/custom-order"
                 className="border border-[#f2d00d]/40 text-[#f2d00d] px-7 py-3 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-[#f2d00d]/10 text-center"
               >
-                Request Custom Order
+                Request Custom Designs.
               </Link>
             </div>
           </div>
@@ -106,7 +106,7 @@ function Header() {
             className="text-sm font-medium hover:text-[#f2d00d]"
             href="/custom-order"
           >
-            Custom Order
+            Custom Designs.
           </Link>
           <Link className="text-sm font-medium hover:text-[#f2d00d]" href="/about">
             About
@@ -134,6 +134,20 @@ function Header() {
           className="bg-[#f2d00d] text-[#221f10] px-6 py-2 rounded-lg font-bold text-sm tracking-wide hover:brightness-110 transition-all uppercase"
         >
           Shop Now
+        </Link>
+
+        <Link
+          href="/login"
+          className="hidden md:inline-flex items-center gap-2 border border-[#f2d00d]/30 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
+        >
+          Login
+        </Link>
+
+        <Link
+          href="/register"
+          className="inline-flex items-center gap-2 border border-[#f2d00d]/30 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
+        >
+          Register
         </Link>
       </div>
     </header>

@@ -72,9 +72,6 @@ export default function AdminSettingsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl md:text-4xl font-bold font-serif">Settings</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Store-wide info used for WhatsApp checkout and contact details.
-        </p>
       </div>
 
       {msg ? (
@@ -139,10 +136,6 @@ export default function AdminSettingsPage() {
               Reset
             </button>
           </div>
-
-          <p className="text-xs text-slate-500">
-            These settings are saved in the admin browser (localStorage). If you want them saved in MongoDB for all admins/devices, tell me and I’ll add the backend endpoints.
-          </p>
         </div>
       </div>
     </div>

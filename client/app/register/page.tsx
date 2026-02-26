@@ -35,7 +35,6 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      // Register customer
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +54,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto-login to get JWT
       const loginRes = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,7 +71,7 @@ export default function RegisterPage() {
       }
 
       setMsg({ type: "ok", text: "Account created. Redirecting..." });
-      router.push("/"); // customer goes home
+      router.push("/");
     } catch {
       setMsg({ type: "err", text: "Network error. Check backend + CORS." });
     } finally {
@@ -83,7 +81,6 @@ export default function RegisterPage() {
 
   return (
     <main className="min-h-screen grid lg:grid-cols-2 bg-[#f8f8f5] dark:bg-[#221f10]">
-      {/* LEFT */}
       <section className="relative hidden lg:block">
         <Image src={BG} alt="Dress background" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-black/55" />
@@ -122,7 +119,6 @@ export default function RegisterPage() {
         </div>
       </section>
 
-      {/* RIGHT */}
       <section className="flex items-center justify-center px-6 py-14">
         <div className="w-full max-w-md">
           <Link href="/" className="lg:hidden inline-flex items-center gap-2 text-[#f2d00d]">

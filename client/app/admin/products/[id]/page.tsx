@@ -85,7 +85,6 @@ export default async function ProductDetailsPage({
 
       <section className="px-6 lg:px-20 py-10">
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-10">
-          {/* Images */}
           <div className="space-y-4">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#f2d00d]/15 bg-slate-200 dark:bg-slate-800">
               <Image src={mainImage} alt={product.title} fill className="object-cover" priority />
