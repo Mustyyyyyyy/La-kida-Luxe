@@ -14,14 +14,27 @@ const app = express();
 
 connectDB(process.env.MONGO_URI);
 
+// CORS_ORIGIN=http://localhost:3000,https://your-frontend.vercel.app
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
-);app.use(express.json({ limit: "10mb" }));
+);
 
-app.get("/", (req, res) => res.send(" Tailor Fashion API running"));
+app.use(express.json({ limit: "10mb" }));
+
+app.get("/", (req, res) => res.send("Tailor Fashion API running"));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);

@@ -14,7 +14,7 @@ const KEY = "lakida_admin_settings";
 
 const DEFAULTS: Settings = {
   brandName: "LA'KIDA",
-  whatsappNumber: "2348109115088",
+  whatsappNumber: "2347065630239",
   businessEmail: "lakida@yourbrand.com",
   location: "Lagos, Nigeria",
   deliveryFee: 0,

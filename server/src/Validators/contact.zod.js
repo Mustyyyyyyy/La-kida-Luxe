@@ -8,3 +8,12 @@ exports.sendContactSchema = z.object({
     message: z.string().min(5, "Message is too short"),
   }),
 });
+
+exports.updateContactStatusSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, "Missing id"),
+  }),
+  body: z.object({
+    status: z.enum(["new", "replied", "closed"]),
+  }),
+});

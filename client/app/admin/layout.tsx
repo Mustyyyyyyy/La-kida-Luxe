@@ -22,12 +22,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     { label: "Dashboard", href: "/admin", icon: "grid_view" },
     { label: "Products", href: "/admin/products", icon: "checkroom" },
     { label: "Orders", href: "/admin/orders", icon: "receipt_long" },
+    { label: "Messages", href: "/admin/messages", icon: "chat" }, // ✅ added
     { label: "Settings", href: "/admin/settings", icon: "settings" },
   ];
 
   return (
     <div className="min-h-screen bg-[#f8f8f5] text-slate-900 dark:bg-[#221f10] dark:text-slate-100">
       <div className="flex min-h-screen">
+        {/* Sidebar */}
         <aside className="hidden lg:flex w-72 flex-col border-r border-[#f2d00d]/15 bg-white/70 dark:bg-white/5">
           <div className="px-6 py-6 border-b border-[#f2d00d]/15">
             <Link href="/" className="flex items-center gap-2 text-[#f2d00d]">
@@ -90,7 +92,9 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
+        {/* Main */}
         <div className="flex-1 flex flex-col">
+          {/* Topbar */}
           <header className="sticky top-0 z-40 border-b border-[#f2d00d]/15 bg-white/70 dark:bg-[#221f10]/80 backdrop-blur-md">
             <div className="px-6 lg:px-10 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -100,7 +104,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                 <div>
                   <div className="font-bold font-serif">Admin</div>
                   <div className="text-xs text-slate-600 dark:text-slate-300">
-                    Manage products, orders, and the brand.
+                    Manage products, orders, messages, and settings.
                   </div>
                 </div>
               </div>

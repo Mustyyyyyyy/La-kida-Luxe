@@ -43,7 +43,6 @@ export default function AdminDashboardPage() {
         setLoading(true);
         setErr("");
 
-        // products is public in your backend, orders is admin-protected
         const [p, o] = await Promise.all([
           fetch(`${getApiUrl()}/api/products`, { cache: "no-store" }).then((r) =>
             r.json()

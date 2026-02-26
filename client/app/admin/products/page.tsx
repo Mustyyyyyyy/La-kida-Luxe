@@ -33,7 +33,6 @@ export default function AdminProductsPage() {
     try {
       setLoading(true);
       setErr("");
-      // products GET is public in backend, but OK to use admin fetch too
       const data = await apiFetchAuth<Product[]>("/api/products", { method: "GET" });
       setItems(Array.isArray(data) ? data : []);
     } catch (e: any) {
@@ -144,7 +143,6 @@ export default function AdminProductsPage() {
 
                     <td className="py-3 px-5 text-right">
                       <div className="inline-flex gap-2">
-                        {/* Optional edit page later */}
                         <Link
                           href={`/admin/products/${p._id}`}
                           className="border border-[#f2d00d]/35 text-[#f2d00d] px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-[#f2d00d]/10"
