@@ -8,7 +8,7 @@ const {
   createProductSchema,
   updateProductSchema,
   removeImageSchema,
-} = require("../validators/product.zod");
+} = require("../Validators/product.zod");
 
 router.get("/", ctrl.listProducts);
 router.get("/:id", ctrl.getProduct);
