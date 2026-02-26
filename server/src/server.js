@@ -14,10 +14,10 @@ const app = express();
 
 connectDB(process.env.MONGO_URI);
 
-// CORS_ORIGIN=http://localhost:3000,https://your-frontend.vercel.app
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
   .split(",")
-  .map((o) => o.trim());
+  .map((o) => o.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
@@ -26,7 +26,7 @@ app.use(
 
       if (allowedOrigins.includes(origin)) return callback(null, true);
 
-      return callback(new Error("Not allowed by CORS"));
+      return callback(new Error("Not allowed by CORS: " + origin));
     },
     credentials: true,
   })
@@ -40,7 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/newslwtter", newsletterRoutes);
+app.use("/api/newsletter", newsletterRoutes); 
 app.use("/api/contact", contactRoutes);
 
 const PORT = process.env.PORT || 5000;
