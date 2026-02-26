@@ -2,7 +2,7 @@ const router = require("express").Router();
 const ctrl = require("../controllers/contact.controller");
 
 const { validate } = require("../middleware/validate");
-const { sendContactSchema, updateContactStatusSchema } = require("../validators/contact.zod");
+const { sendContactSchema, updateContactStatusSchema } = require("../Validators/contact.zod");
 
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
