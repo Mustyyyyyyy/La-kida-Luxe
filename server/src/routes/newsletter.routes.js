@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const ctrl = require("../controllers/newsletter.controller");
 const { validate } = require("../middleware/validate");
-const { subscribeSchema } = require("../Validators/newsletter.zod");
+const { subscribeSchema } = require("../validators/newsletter.zod");
 
-router.post("/subscribe", validate(subscribeSchema), ctrl.subscribe);
+router.post("/", validate(subscribeSchema), ctrl.subscribe);
 
 module.exports = router;

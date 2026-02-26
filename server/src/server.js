@@ -7,8 +7,8 @@ const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
 const uploadRoutes = require("./routes/upload.routes");
-const newsletterRoutes = require("./routes/newsletter.routes");
 const contactRoutes = require("./routes/contact.routes");
+const newsletterRoutes = require("./routes/newsletter.routes");
 
 const app = express();
 
@@ -40,7 +40,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/newslwtter", newsletterRoutes);
 app.use("/api/contact", contactRoutes);
 
 const PORT = process.env.PORT || 5000;

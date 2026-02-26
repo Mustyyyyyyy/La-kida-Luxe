@@ -150,7 +150,6 @@ export default function CheckoutPage() {
       const orderId = data?._id || data?.order?._id || "";
       const orderCode = data?.orderCode || data?.order?.orderCode || "";
 
-      // store for success page whatsapp message
       localStorage.setItem(
         LAST_ORDER_KEY,
         JSON.stringify({
@@ -181,9 +180,6 @@ export default function CheckoutPage() {
           <h1 className="mt-2 text-4xl md:text-5xl font-bold font-serif">
             Confirm Details
           </h1>
-          <p className="mt-3 text-slate-700 dark:text-slate-300">
-            You’ll confirm this order on WhatsApp after placing it.
-          </p>
         </div>
       </section>
 
