@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
+
+export const dynamic = "force-dynamic"; // ✅ stops static prerender errors on Vercel
 
 const CART_KEY = "lakida_cart";
 const LAST_ORDER_KEY = "lakida_last_order";
 const SETTINGS_KEY = "lakida_admin_settings";
-
 const FALLBACK_WA = "2347065630239";
 
 function waLink(number: string, message: string) {
@@ -19,6 +20,14 @@ function waLink(number: string, message: string) {
 type Settings = { whatsappNumber?: string };
 
 export default function SuccessPage() {
+  return (
+    <Suspense fallback={<SuccessSkeleton />}>
+      <SuccessInner />
+    </Suspense>
+  );
+}
+
+function SuccessInner() {
   const sp = useSearchParams();
   const orderCode = sp.get("orderCode") || "";
   const orderId = sp.get("id") || "";
@@ -92,8 +101,7 @@ export default function SuccessPage() {
   return (
     <main className="page">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-        <BrandLogo />
-
+        <BrandLogo size={56} />
         <Link href="/shop" className="btn-outline px-5 py-2 text-xs">
           Shop
         </Link>
@@ -133,12 +141,20 @@ export default function SuccessPage() {
               Continue Shopping
             </Link>
           </div>
-
-          <p className="mt-6 text-xs muted">
-            If WhatsApp doesn’t open, copy your order code and message us manually.
-          </p>
         </div>
       </section>
+    </main>
+  );
+}
+
+function SuccessSkeleton() {
+  return (
+    <main className="page">
+      <div className="px-6 lg:px-20 py-16">
+        <div className="max-w-[900px] mx-auto card p-10 text-center">
+          <div className="text-sm muted">Loading success page…</div>
+        </div>
+      </div>
     </main>
   );
 }
