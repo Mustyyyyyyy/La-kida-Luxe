@@ -2,22 +2,24 @@ const ContactMessage = require("../models/ContactMessage");
 
 exports.sendMessage = async (req, res) => {
   try {
-    const data = req.validated.body;
+    const { fullName, email, phone, message } = req.body;
+
+    if (!fullName || !message) {
+      return res.status(400).json({ message: "fullName and message are required" });
+    }
 
     const created = await ContactMessage.create({
-      fullName: data.fullName,
-      email: data.email,
-      phone: data.phone,
-      message: data.message,
+      fullName,
+      email: email || "",
+      phone: phone || "",
+      message,
+      status: "new",
     });
 
-    return res.json({
-      message: "Message sent successfully",
-      id: created._id,
-    });
+    res.json({ message: "Message sent successfully", _id: created._id });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -28,8 +30,13 @@ exports.listMessages = async (req, res) => {
 
 exports.updateStatus = async (req, res) => {
   try {
-    const { id } = req.validated.params;
-    const { status } = req.validated.body;
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowed = ["new", "replied", "closed"];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
 
     const updated = await ContactMessage.findByIdAndUpdate(
       id,

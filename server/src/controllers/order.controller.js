@@ -1,46 +1,59 @@
 const Order = require("../models/Order");
-const { makeOrderCode } = require("../utils/makeOrderCode");
+
+function makeOrderCode() {
+  const n = Math.floor(100000 + Math.random() * 900000);
+  return `LK-${n}`;
+}
 
 exports.createOrder = async (req, res) => {
   try {
-    const payload = req.validated.body;
+    const { customer, delivery, items, subtotal, deliveryFee, total } = req.body;
 
-    if (!payload?.customer?.fullName || !payload?.customer?.phone) {
-      return res.status(400).json({ message: "Customer name + phone required" });
-    }
-    if (!payload?.delivery?.address) {
-      return res.status(400).json({ message: "Delivery address required" });
+    if (!customer?.fullName || !customer?.phone) {
+      return res.status(400).json({ message: "Customer fullName and phone are required" });
     }
 
-    const hasItems = Array.isArray(payload.items) && payload.items.length > 0;
-    if (!hasItems && !payload.isCustom) {
-      return res.status(400).json({ message: "Cart is empty" });
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ message: "Order items are required" });
     }
 
     const order = await Order.create({
-      ...payload,
       orderCode: makeOrderCode(),
+      customer,
+      delivery: delivery || {},
+      items,
+      subtotal: Number(subtotal) || 0,
+      deliveryFee: Number(deliveryFee) || 0,
+      total: Number(total) || 0,
       status: "pending_whatsapp",
-      payment: { method: "whatsapp", paid: false },
     });
 
     res.json(order);
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Server error creating order" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-exports.listOrders = async (req, res) => {
+exports.getOrders = async (req, res) => {
   const orders = await Order.find().sort({ createdAt: -1 });
   res.json(orders);
 };
 
-exports.updateOrderStatus = async (req, res) => {
-  const { status } = req.body;
-  const allowed = ["pending_whatsapp", "confirmed", "in_progress", "ready", "delivered", "cancelled"];
-  if (!allowed.includes(status)) return res.status(400).json({ message: "Invalid status" });
+exports.updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  const updated = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
-  res.json(updated);
+    const allowed = ["pending_whatsapp", "confirmed", "in_progress", "ready", "delivered", "cancelled"];
+    if (!allowed.includes(status)) return res.status(400).json({ message: "Invalid status" });
+
+    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updated) return res.status(404).json({ message: "Order not found" });
+
+    res.json(updated);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Server error" });
+  }
 };

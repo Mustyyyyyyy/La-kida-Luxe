@@ -1,18 +1,19 @@
-const Subscriber = require("../models/Subscriber");
+const Newsletter = require("../models/Newsletter");
 
 exports.subscribe = async (req, res) => {
   try {
-    const { email } = req.validated.body;
+    const { email } = req.body;
 
-    const exists = await Subscriber.findOne({ email });
-    if (exists) {
-      return res.json({ message: "Already subscribed" });
-    }
+    if (!email) return res.status(400).json({ message: "email is required" });
 
-    await Subscriber.create({ email, source: "website" });
-    return res.json({ message: "Subscribed successfully" });
+    const exists = await Newsletter.findOne({ email: String(email).toLowerCase() });
+    if (exists) return res.json({ message: "Already subscribed" });
+
+    await Newsletter.create({ email: String(email).toLowerCase() });
+
+    res.json({ message: "Subscribed successfully" });
   } catch (e) {
     console.error(e);
-    return res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
