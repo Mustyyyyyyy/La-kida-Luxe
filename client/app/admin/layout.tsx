@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import AdminGuard from "@/components/AdminGuard";
 import { getUser, logout } from "@/lib/auth";
 import BrandLogo from "@/components/BrandLogo";
+
+type UserLite = { fullName?: string; email?: string } | null;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +20,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const user = getUser();
+
+  const [user, setUser] = useState<UserLite>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
 
   const nav = [
     { label: "Dashboard", href: "/admin", icon: "grid_view" },
@@ -27,10 +35,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     { label: "Settings", href: "/admin/settings", icon: "settings" },
   ];
 
+  function doLogout() {
+    logout();
+    router.push("/login");
+  }
+
   return (
     <div className="page">
       <div className="flex min-h-screen">
-        {/* Sidebar */}
         <aside className="hidden lg:flex w-72 flex-col border-r border-white/10 bg-[rgba(18,0,24,0.55)]">
           <div className="px-6 py-6 border-b border-white/10">
             <BrandLogo size={56} />
@@ -72,10 +84,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               <div className="text-sm text-white/70">{user?.email || ""}</div>
 
               <button
-                onClick={() => {
-                  logout();
-                  router.push("/login");
-                }}
+                onClick={doLogout}
                 className="mt-4 w-full btn-outline py-2.5 text-xs hover:bg-white/10"
               >
                 Logout
@@ -84,9 +93,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        {/* Main */}
         <div className="flex-1 flex flex-col">
-          {/* Topbar */}
           <header className="sticky top-0 z-40 topbar">
             <div className="px-6 lg:px-10 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -102,16 +109,16 @@ function AdminShell({ children }: { children: React.ReactNode }) {
               </div>
 
               <div className="flex items-center gap-3">
-                <Link href="/" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+                <Link
+                  href="/"
+                  className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
+                >
                   <span className="material-symbols-outlined text-base">home</span>{" "}
                   View site
                 </Link>
 
                 <button
-                  onClick={() => {
-                    logout();
-                    router.push("/login");
-                  }}
+                  onClick={doLogout}
                   className="btn-primary px-4 py-2 text-xs hover:brightness-110"
                 >
                   <span className="material-symbols-outlined text-base">logout</span>{" "}

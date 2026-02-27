@@ -1,7 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { getProducts } from "@/lib/api";
-import BrandLogo from "@/components/BrandLogo";
-import NewsletterForm from "@/components/NewsletterForm";
+import { useEffect, useMemo, useState } from "react";
+import { apiFetchAuth, getApiUrl } from "@/lib/adminApi";
 
 type Product = {
   _id: string;
@@ -11,411 +12,276 @@ type Product = {
   images?: { url: string; publicId: string }[];
 };
 
+type Order = {
+  _id: string;
+  orderCode: string;
+  status:
+    | "pending_whatsapp"
+    | "confirmed"
+    | "in_progress"
+    | "ready"
+    | "delivered"
+    | "cancelled"
+    | string;
+  total: number;
+  createdAt: string;
+  customer?: { fullName?: string; phone?: string; email?: string };
+};
+
 function formatNaira(amount: number) {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(amount || 0);
 }
 
-function pickImage(p: Product) {
-  return p.images?.[0]?.url || "/placeholder-1.jpg";
+function niceStatus(s: string) {
+  const map: Record<string, string> = {
+    pending_whatsapp: "Pending WhatsApp",
+    confirmed: "Confirmed",
+    in_progress: "In Progress",
+    ready: "Ready",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+  };
+  return map[s] || s;
 }
 
-export default async function HomePage() {
-  let products: Product[] = [];
-  try {
-    products = await getProducts();
-  } catch {
-    products = [];
-  }
+export default function AdminHomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
 
-  const newArrivals = products.slice(0, 6);
+  useEffect(() => {
+    let mounted = true;
 
-  const categories = [
-    { name: "Kaftans", href: "/shop?category=Kaftans", icon: "content_cut" },
-    { name: "Gowns", href: "/shop?category=Gowns", icon: "styler" },
-    { name: "Suits", href: "/shop?category=Suits", icon: "checkroom" },
-    { name: "Traditional", href: "/shop?category=Traditional", icon: "diamond" },
-  ];
+    async function run() {
+      try {
+        setLoading(true);
+        setErr("");
+
+        // Products = public endpoint
+        const p = await fetch(`${getApiUrl()}/api/products`, {
+          cache: "no-store",
+        }).then((r) => r.json());
+
+        // Orders = admin protected
+        const o = await apiFetchAuth<Order[]>("/api/orders", { method: "GET" });
+
+        if (!mounted) return;
+
+        setProducts(Array.isArray(p) ? p : []);
+        setOrders(Array.isArray(o) ? o : []);
+      } catch (e: any) {
+        if (!mounted) return;
+        setErr(e?.message || "Failed to load dashboard");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const stats = useMemo(() => {
+    const totalProducts = products.length;
+    const totalOrders = orders.length;
+
+    const pending = orders.filter((x) => x.status === "pending_whatsapp").length;
+    const inProgress = orders.filter((x) => x.status === "in_progress").length;
+
+    const revenue = orders
+      .filter((x) => x.status !== "cancelled")
+      .reduce((sum, x) => sum + (x.total || 0), 0);
+
+    const latestOrders = [...orders]
+      .sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+      .slice(0, 8);
+
+    return { totalProducts, totalOrders, pending, inProgress, revenue, latestOrders };
+  }, [products, orders]);
 
   return (
     <main className="page">
-      <Header />
-
-      {/* HERO */}
-      <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-black/55 z-10" />
-          <img
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOO59_EHre-MkrNUXU0f4HahP1eW2UERAfZswRyTHdj0jh_WYDCuYjqAhWixHmMBmvp8ZZd5Mk49hCenMdQqp6e5vFV0mM5Og9w0mj3aQRmLjccxA5Tzs8t2AQLC_3WMI9mccIh-5NgoVJosgJdD-6dPq9IaUc0oI_CTzrrqYbTwynHO_l6kFC3ID0z7lGJJnbMjjFIMC9pmEfsExZh51hDfNuzLxO8epnoCNXZRYEIe9SdtmUJ3mLKuxpLG7WLu10T5DoYqTAsM"
-            alt="High fashion African couture runway"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-
-        <div className="relative z-20 text-center px-4 max-w-4xl">
-          <h1 className="text-5xl md:text-8xl font-bold text-white mb-6 tracking-tight">
-            LA&apos;KIDA
-          </h1>
-          <p className="text-xl md:text-2xl text-[color:var(--accent)] italic mb-10 font-serif">
-            Designed to be Unusually Classy.
-          </p>
-
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link href="/shop" className="btn-primary px-10 py-4 text-lg hover:brightness-110">
-              Shop Now
-            </Link>
-            <Link
-              href="/custom-order"
-              className="btn-outline px-10 py-4 text-lg hover:bg-white/10"
-            >
-              Request Custom Designs.
-            </Link>
-          </div>
-
-          <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-              Perfect Fit
-            </span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-              Premium Fabrics
-            </span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-              Delivery Available
-            </span>
-          </div>
-        </div>
-
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce text-white/90">
-          <span className="material-symbols-outlined text-4xl">expand_more</span>
-        </div>
-      </section>
-
-      <section className="py-16 px-6 lg:px-20">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="flex items-end justify-between gap-6 mb-10">
+      <section className="px-6 lg:px-20 py-10">
+        <div className="max-w-[1400px] mx-auto space-y-8">
+          <div className="flex items-end justify-between gap-4">
             <div>
-              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
-                Explore
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold mt-2 font-serif">
-                Shop by Category
-              </h2>
+              <h1 className="text-3xl md:text-4xl font-bold font-serif">Dashboard</h1>
+              <p className="mt-2 text-sm muted">Quick overview of products and orders.</p>
             </div>
-            <Link href="/shop" className="text-sm font-medium text-[color:var(--accent)] hover:underline">
-              View all →
-            </Link>
-          </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((c) => (
-              <Link key={c.name} href={c.href} className="card p-6 hover:bg-white/5 transition">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--lilac2)] mb-4">
-                  <span className="material-symbols-outlined">{c.icon}</span>
-                </div>
-                <h3 className="text-xl font-bold font-serif">{c.name}</h3>
-                <p className="text-sm muted2 mt-1">View pieces →</p>
-                <div className="mt-4 h-px bg-white/10" />
-                <p className="mt-4 text-xs uppercase tracking-widest text-[color:var(--accent)] font-bold">
-                  Browse
-                </p>
+            <div className="flex gap-3">
+              <Link href="/admin/products/new" className="btn-primary px-4 py-2 text-xs hover:brightness-110">
+                Add Product
               </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* NEW ARRIVALS */}
-      <section className="py-16 px-6 lg:px-20" id="collections">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="flex items-end justify-between gap-6 mb-10">
-            <div>
-              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
-                New Arrivals
-              </span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-2 font-serif">
-                Signature Pieces
-              </h2>
-            </div>
-            <Link href="/shop" className="text-sm font-medium text-[color:var(--accent)] hover:underline">
-              View all →
-            </Link>
-          </div>
-
-          {newArrivals.length === 0 ? (
-            <div className="card p-10 text-center">
-              <div className="mt-2">
-                <span className="material-symbols-outlined text-4xl text-[color:var(--accent)]">
-                  inventory_2
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {newArrivals.map((p) => (
-                <Link key={p._id} href={`/product/${p._id}`} className="card overflow-hidden hover:shadow-2xl transition">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-black/20">
-                    <img
-                      src={pickImage(p)}
-                      alt={p.title}
-                      className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-end p-5">
-                      <span className="w-full bg-white text-[#221f10] py-3 rounded-lg font-bold uppercase text-sm tracking-widest text-center">
-                        View Details
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-5">
-                    <h3 className="text-xl font-bold font-serif">{p.title}</h3>
-                    <p className="mt-1 text-[color:var(--accent)] font-semibold">
-                      {formatNaira(p.price)}
-                    </p>
-                    <p className="mt-2 text-sm muted2">{p.category || "General"}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ATELIER */}
-      <section className="py-20 px-6 lg:px-20" id="atelier">
-        <div className="max-w-[1200px] mx-auto grid lg:grid-cols-2 gap-14 items-center">
-          <div>
-            <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
-              Bespoke Service
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold mt-4 mb-6 font-serif">
-              The LA&apos;KIDA Atelier
-            </h2>
-            <p className="text-lg leading-relaxed muted mb-8">
-              Experience the pinnacle of personalization. Our master tailors collaborate
-              with you to create a unique piece that celebrates your heritage and silhouette.
-              Every stitch tells your story.
-            </p>
-
-            <div className="grid grid-cols-3 gap-4">
-              <Feature icon="content_cut" label="Custom Fitting" />
-              <Feature icon="texture" label="Rare Fabrics" />
-              <Feature icon="brush" label="Hand Finishing" />
-            </div>
-
-            <div className="mt-10 flex gap-3">
-              <Link href="/custom-order" className="btn-primary px-7 py-3 text-sm hover:brightness-110">
-                Start Custom Order
+              <Link href="/admin/orders" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+                View Orders
               </Link>
-              <Link href="/contact" className="btn-outline px-7 py-3 text-sm hover:bg-white/10">
-                Contact
+              <Link href="/admin/messages" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+                Messages
               </Link>
             </div>
           </div>
 
-          <div className="card p-8 md:p-10">
-            <h3 className="text-2xl font-bold mb-6 text-center font-serif">
-              Quick Consultation
-            </h3>
+          {err ? (
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200">
+              {err}
+            </div>
+          ) : null}
 
-            <form className="space-y-5">
-              <div className="grid md:grid-cols-2 gap-4">
-                <Input label="First Name" placeholder="Olamide" />
-                <Input label="Last Name" placeholder="Bakare" />
-              </div>
-              <Input label="Email Address" placeholder="olamide@luxury.com" type="email" />
+          {/* Stats */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <StatCard title="Products" value={loading ? "—" : String(stats.totalProducts)} icon="checkroom" />
+            <StatCard title="Orders" value={loading ? "—" : String(stats.totalOrders)} icon="receipt_long" />
+            <StatCard title="Pending WhatsApp" value={loading ? "—" : String(stats.pending)} icon="hourglass_empty" />
+            <StatCard title="In Progress" value={loading ? "—" : String(stats.inProgress)} icon="construction" />
+            <StatCard title="Revenue" value={loading ? "—" : formatNaira(stats.revenue)} icon="payments" />
+          </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
-                  Service Interest
-                </label>
-                <select className="input">
-                  <option className="bg-[#120018]">Bridal Couture</option>
-                  <option className="bg-[#120018]">Red Carpet</option>
-                  <option className="bg-[#120018]">Bespoke Suit</option>
-                </select>
-              </div>
+          {/* Latest Orders */}
+          <div className="card p-0 overflow-hidden">
+            <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+              <h2 className="text-xl font-bold font-serif">Latest Orders</h2>
+              <Link href="/admin/orders" className="text-sm font-bold text-[color:var(--accent)] hover:underline">
+                See all →
+              </Link>
+            </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
-                  Message / Vision
-                </label>
-                <textarea className="input" placeholder="Tell us about your occasion..." rows={4} />
-              </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-[1000px] w-full text-sm">
+                <thead className="muted">
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-6">Order</th>
+                    <th className="text-left py-3 px-6">Customer</th>
+                    <th className="text-left py-3 px-6">Status</th>
+                    <th className="text-left py-3 px-6">Total</th>
+                    <th className="text-left py-3 px-6">Date</th>
+                    <th className="text-left py-3 px-6">Action</th>
+                  </tr>
+                </thead>
 
-              <button type="button" className="btn-primary w-full py-4 text-lg hover:brightness-110">
-                Book Consultation
-              </button>
-            </form>
+                <tbody>
+                  {loading ? (
+                    <tr>
+                      <td colSpan={6} className="py-10 px-6 muted">
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : stats.latestOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-10 px-6 muted">
+                        No orders yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    stats.latestOrders.map((o) => (
+                      <tr key={o._id} className="border-b border-white/10">
+                        <td className="py-3 px-6 font-semibold">{o.orderCode}</td>
+                        <td className="py-3 px-6">
+                          <div className="font-semibold">{o.customer?.fullName || "—"}</div>
+                          <div className="text-xs muted">
+                            {o.customer?.phone || ""} {o.customer?.email ? `• ${o.customer.email}` : ""}
+                          </div>
+                        </td>
+                        <td className="py-3 px-6">
+                          <span className="badge">{niceStatus(o.status)}</span>
+                        </td>
+                        <td className="py-3 px-6 font-semibold text-[color:var(--accent)]">
+                          {formatNaira(o.total)}
+                        </td>
+                        <td className="py-3 px-6 muted">{new Date(o.createdAt).toLocaleString()}</td>
+                        <td className="py-3 px-6">
+                          <Link
+                            href={`/admin/orders/${o._id}`}
+                            className="btn-outline px-3 py-2 text-[10px] hover:bg-white/10"
+                          >
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <QuickLink
+              title="Manage Products"
+              desc="Add new items, update prices, images and stock."
+              href="/admin/products"
+              icon="checkroom"
+            />
+            <QuickLink
+              title="Manage Orders"
+              desc="Track WhatsApp orders and update delivery status."
+              href="/admin/orders"
+              icon="receipt_long"
+            />
+            <QuickLink
+              title="Customer Messages"
+              desc="Read contact form messages and mark replied/closed."
+              href="/admin/messages"
+              icon="chat"
+            />
           </div>
         </div>
       </section>
-
-      {/* GALLERY */}
-      <section className="py-20 px-6 lg:px-20 overflow-hidden">
-        <div className="text-center mb-12">
-          <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
-            Visual Story
-          </span>
-          <h2 className="text-3xl md:text-6xl font-bold mt-4 font-serif">
-            The Gallery of Looks
-          </h2>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          <GalleryCard title="Details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa2vp_7JLCu9DTSmHeqGwlsUB4n9dDhdX_NBg_2MhbrTHhqrur7FUMfMt3XyhdGnhpoI9wJZRt_hMDO-yDRy06lBeXfmg7zBbaV2T5OPIylFqD0TIHSfcJK2jbTQHff2eNAa9HvYs92JgU8RRcyxF5TUBIC1ekffQFJAe0ZHD2No3GbG_fR6OevO0pYwXI4DMVu6vvTQC3wzUslPdVtfg3r1HM9nTNUxIUvP4JihMDtLfWi2NTpn9LYiqfmGNsL5oc5yX2OzyfBno" />
-          <GalleryCard title="Elegance" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWZ09OmdRnqjSwh12tcHI11D7Bb56o8d_0YoOyOb9O2Z2MeAQedWDIsqSoG_G4eJullBbYeswe_C-r6lKZ7-1YFzFqNJHKjK9rm9q3nkZqe730emKNGZ6kaDrj35KShL57VzApaaEMxDWinBvW2dNWgDnHOXXCZUV0OtgmSYxp1fM0I8rotrxspYfqqdbf_Hz0eUePJvH2dhQeuISsKVLWP1WrgqrldZAO3I8zDfbc_Ve7EsAQre9eFR-wtBRpiR0RE_4cybH0OSk" />
-          <GalleryCard title="Heritage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9cn5W1ync8jSvVXKHIiI09w7-Dp2fbmdMIdCTNNNEfGoN8pdqs0CEHKjwhZFCHdi5dCgYTbRlrJaTKgnbZ-RP7d9ejJEJeiVMdBIPPhdM9ZIqrjBZ1zA93G-hb2jsMaR9MC0qNWGFIROCdpMzaW4l5zzFqBfSXQosenXFzTC_0bhjjonNbHLZ8nREoiOcsl7p0kTM06zIqRBL1DqR5m4D9qc49TrJ7MeqW84s_2FvKww5M_tfY1OtQhQrT4bxYR_xPnf7e-On520" />
-        </div>
-      </section>
-
-      <Footer />
     </main>
   );
 }
 
-function Header() {
-  return (
-    <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-12">
-        <BrandLogo size={54} />
-
-        <nav className="hidden md:flex items-center gap-8">
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/shop">
-            Shop
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
-            Custom Design
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/about">
-            About
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/contact">
-            Contact
-          </Link>
-        </nav>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Link
-          href="/cart"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/15 text-white/90 hover:bg-white/10"
-          aria-label="Cart"
-        >
-          <span className="material-symbols-outlined">shopping_bag</span>
-        </Link>
-
-        <Link href="/shop" className="btn-primary px-6 py-2 text-sm hover:brightness-110">
-          Shop Now
-        </Link>
-
-        <Link href="/login" className="ml-4 text-sm font-medium text-white/70 hover:text-[color:var(--accent)]">
-          Login
-        </Link>
-
-        <Link href="/register" className="ml-4 text-sm font-medium text-white/70 hover:text-[color:var(--accent)]">
-          Register
-        </Link>
-      </div>
-    </header>
-  );
-}
-
-function Feature({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div className="card p-4 text-center">
-      <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--lilac2)] mb-3 mx-auto">
-        <span className="material-symbols-outlined">{icon}</span>
-      </div>
-      <span className="text-xs font-bold uppercase tracking-wider">{label}</span>
-    </div>
-  );
-}
-
-function Input({
-  label,
-  placeholder,
-  type = "text",
+function StatCard({
+  title,
+  value,
+  icon,
 }: {
-  label: string;
-  placeholder?: string;
-  type?: string;
+  title: string;
+  value: string;
+  icon: string;
 }) {
   return (
-    <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
-        {label}
-      </label>
-      <input type={type} placeholder={placeholder} className="input" />
-    </div>
-  );
-}
-
-function GalleryCard({ title, src }: { title: string; src: string }) {
-  return (
-    <div className="relative group rounded-xl overflow-hidden break-inside-avoid border border-white/10">
-      <img src={src} alt={title} className="w-full h-auto transition-transform duration-700 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-        <span className="text-white font-serif italic text-2xl">{title}</span>
+    <div className="card p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-xs uppercase tracking-[0.2em] muted">{title}</div>
+          <div className="mt-2 text-3xl font-bold font-serif">{value}</div>
+        </div>
+        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--accent)]">
+          <span className="material-symbols-outlined">{icon}</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function Footer() {
+function QuickLink({
+  title,
+  desc,
+  href,
+  icon,
+}: {
+  title: string;
+  desc: string;
+  href: string;
+  icon: string;
+}) {
   return (
-    <footer className="mt-16 border-t border-white/10 bg-[rgba(18,0,24,0.65)] px-6 lg:px-20 py-16">
-      <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
-        <div className="space-y-6">
-          <BrandLogo size={56} />
-          <p className="text-sm muted2">
-            Redefining luxury through the lens of African craftsmanship. Each piece is
-            a tribute to heritage and future vision.
-          </p>
-          <p className="text-sm muted2">Lagos, Nigeria</p>
-        </div>
-
-        <div>
-          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
-            Explore
-          </h4>
-          <ul className="space-y-4 text-sm text-white/70">
-            <li><Link className="hover:text-[color:var(--accent)]" href="/shop">Shop</Link></li>
-            <li><Link className="hover:text-[color:var(--accent)]" href="/custom-order">Custom Order</Link></li>
-            <li><Link className="hover:text-[color:var(--accent)]" href="/about">About</Link></li>
-            <li><Link className="hover:text-[color:var(--accent)]" href="/contact">Contact</Link></li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
-            Concierge
-          </h4>
-          <ul className="space-y-4 text-sm text-white/70">
-            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Shipping & Returns</Link></li>
-            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Size Guide</Link></li>
-            <li><Link className="hover:text-[color:var(--accent)]" href="/policies">FAQ</Link></li>
-          </ul>
-        </div>
-
-        <div className="space-y-4">
-          <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm">
-            Newsletter
-          </h4>
-          <p className="text-sm muted2">Join the inner circle for exclusive previews.</p>
-          <NewsletterForm />
-        </div>
+    <Link href={href} className="card p-6 hover:bg-white/10 transition">
+      <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--accent)]">
+        <span className="material-symbols-outlined">{icon}</span>
       </div>
-
-      <div className="max-w-[1400px] mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50 uppercase tracking-[0.2em]">
-        <p>©️ {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.</p>
-        <div className="flex gap-8">
-          <Link className="hover:text-[color:var(--accent)]" href="/policies">Privacy</Link>
-          <Link className="hover:text-[color:var(--accent)]" href="/policies">Terms</Link>
-        </div>
-      </div>
-    </footer>
+      <h3 className="mt-4 text-lg font-bold font-serif">{title}</h3>
+      <p className="mt-2 text-sm muted">{desc}</p>
+      <div className="mt-4 text-sm font-bold text-[color:var(--accent)]">Open →</div>
+    </Link>
   );
 }
