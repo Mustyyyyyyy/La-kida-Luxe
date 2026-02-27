@@ -125,9 +125,7 @@ export default function AdminProductsPage() {
                         </div>
                         <div>
                           <div className="font-semibold">{p.title}</div>
-                          <div className="text-xs text-slate-500">
-                            {p._id.slice(-6)}
-                          </div>
+                          <div className="text-xs text-slate-500">{p._id.slice(-6)}</div>
                         </div>
                       </div>
                     </td>
@@ -144,11 +142,12 @@ export default function AdminProductsPage() {
                     <td className="py-3 px-5 text-right">
                       <div className="inline-flex gap-2">
                         <Link
-                          href={`/admin/products/${p._id}`}
+                          href={`/admin/products/${p._id}/edit`}
                           className="border border-[#f2d00d]/35 text-[#f2d00d] px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-[#f2d00d]/10"
                         >
                           Edit
                         </Link>
+
                         <button
                           onClick={() => onDelete(p._id)}
                           disabled={busyId === p._id}

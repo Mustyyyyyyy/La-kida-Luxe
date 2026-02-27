@@ -59,7 +59,6 @@ export default async function ProductDetailsPage({
 
   return (
     <main className="min-h-screen bg-[#f8f8f5] dark:bg-[#221f10] text-slate-900 dark:text-slate-100">
-      {/* Header */}
       <header className="sticky top-0 z-40 border-b border-[#f2d00d]/15 bg-white/70 dark:bg-[#221f10]/80 backdrop-blur-md">
         <div className="px-4 sm:px-6 lg:px-20 py-3 sm:py-4 flex items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-2 text-[#f2d00d] min-w-0">
