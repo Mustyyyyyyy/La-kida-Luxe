@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function BrandLogo({
   href = "/",
   showText = true,
-  size = 100,
+  size = 80,
   className = "",
 }: {
   href?: string;
@@ -16,11 +16,11 @@ export default function BrandLogo({
     <Link
       href={href}
       className={`inline-flex items-center gap-3 ${className}`}
-      aria-label="LK Home"
+      aria-label="LA'KIDA Home"
     >
       <Image
         src="/lakida.png"
-        alt="LK"
+        alt="LA'KIDA"
         width={size}
         height={size}
         priority
@@ -30,9 +30,8 @@ export default function BrandLogo({
       {showText ? (
         <span className="leading-tight">
           <span className="block text-lg font-bold tracking-widest font-serif uppercase text-[color:var(--accent)]">
-            LK
+            LA&apos;KIDA
           </span>
-
           <span className="block text-[11px] uppercase tracking-[0.2em] text-white/70">
             Designed to be unusually classy
           </span>

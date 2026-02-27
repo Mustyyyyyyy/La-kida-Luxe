@@ -7,9 +7,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
-    null
-  );
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,8 +27,7 @@ export default function NewsletterForm() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const text =
-          data?.message || data?.errors?.[0]?.message || "Could not subscribe.";
+        const text = data?.message || data?.errors?.[0]?.message || "Could not subscribe.";
         setMsg({ type: "err", text });
       } else {
         setMsg({ type: "ok", text: data?.message || "Subscribed!" });
@@ -46,32 +43,21 @@ export default function NewsletterForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-2">
       <input
-        className="bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(242,208,13,0.25)]"
+        className="input"
         placeholder="Your Email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={loading}
       />
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="btn-primary py-3 text-sm disabled:opacity-60"
-      >
+      <button type="submit" disabled={loading} className="btn-primary py-3 text-sm hover:brightness-110 disabled:opacity-60">
         {loading ? "Subscribing..." : "Subscribe"}
       </button>
 
       {msg ? (
-        <div
-          className={`rounded-xl border px-4 py-2 text-xs mt-1 ${
-            msg.type === "ok"
-              ? "border-green-500/30 bg-green-500/10 text-green-200"
-              : "border-red-500/30 bg-red-500/10 text-red-200"
-          }`}
-        >
+        <p className={`text-xs mt-1 ${msg.type === "ok" ? "text-green-300" : "text-red-300"}`}>
           {msg.text}
-        </div>
+        </p>
       ) : null}
     </form>
   );

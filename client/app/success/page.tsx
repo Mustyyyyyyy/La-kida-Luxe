@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
-
-export const dynamic = "force-dynamic"; // ✅ stops static prerender errors on Vercel
 
 const CART_KEY = "lakida_cart";
 const LAST_ORDER_KEY = "lakida_last_order";
 const SETTINGS_KEY = "lakida_admin_settings";
+
 const FALLBACK_WA = "2347065630239";
 
 function waLink(number: string, message: string) {
@@ -20,14 +19,6 @@ function waLink(number: string, message: string) {
 type Settings = { whatsappNumber?: string };
 
 export default function SuccessPage() {
-  return (
-    <Suspense fallback={<SuccessSkeleton />}>
-      <SuccessInner />
-    </Suspense>
-  );
-}
-
-function SuccessInner() {
   const sp = useSearchParams();
   const orderCode = sp.get("orderCode") || "";
   const orderId = sp.get("id") || "";
@@ -100,16 +91,16 @@ function SuccessInner() {
 
   return (
     <main className="page">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-        <BrandLogo size={56} />
-        <Link href="/shop" className="btn-outline px-5 py-2 text-xs">
+      <header className="sticky top-0 z-40 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
+        <BrandLogo size={54} />
+        <Link href="/shop" className="btn-outline px-5 py-2 text-xs hover:bg-white/10">
           Shop
         </Link>
       </header>
 
       <section className="px-6 lg:px-20 py-16">
         <div className="max-w-[900px] mx-auto card p-8 md:p-10 text-center">
-          <div className="mx-auto w-14 h-14 rounded-full bg-[rgba(242,208,13,0.12)] flex items-center justify-center text-[color:var(--accent)]">
+          <div className="mx-auto w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--accent)]">
             <span className="material-symbols-outlined text-3xl">check_circle</span>
           </div>
 
@@ -122,7 +113,7 @@ function SuccessInner() {
           </p>
 
           {orderCode ? (
-            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[rgba(242,208,13,0.25)] bg-[rgba(242,208,13,0.10)] px-5 py-2 text-sm font-bold text-[color:var(--accent)]">
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2 text-sm font-bold text-[color:var(--accent)]">
               Order Code: {orderCode}
             </div>
           ) : null}
@@ -132,29 +123,17 @@ function SuccessInner() {
               href={waUrl}
               target="_blank"
               rel="noreferrer"
-              className="btn-primary py-4 text-sm"
+              className="btn-primary py-4 text-sm hover:brightness-110"
             >
               Open WhatsApp
             </a>
 
-            <Link href="/shop" className="btn-outline py-4 text-sm text-center">
+            <Link href="/shop" className="btn-outline py-4 text-sm hover:bg-white/10 text-center">
               Continue Shopping
             </Link>
           </div>
         </div>
       </section>
-    </main>
-  );
-}
-
-function SuccessSkeleton() {
-  return (
-    <main className="page">
-      <div className="px-6 lg:px-20 py-16">
-        <div className="max-w-[900px] mx-auto card p-10 text-center">
-          <div className="text-sm muted">Loading success page…</div>
-        </div>
-      </div>
     </main>
   );
 }

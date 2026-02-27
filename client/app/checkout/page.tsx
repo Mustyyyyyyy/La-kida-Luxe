@@ -63,26 +63,19 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
 
-  const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">(
-    "delivery"
-  );
+  const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("delivery");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("Lagos");
   const [state, setState] = useState("Lagos");
   const [note, setNote] = useState("");
 
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
-    null
-  );
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
     const c = loadCart();
     setCart(c);
     setSettings(loadSettings());
-
-    if (!c.length) {
-      router.replace("/shop");
-    }
+    if (!c.length) router.replace("/shop");
   }, [router]);
 
   const subtotal = useMemo(
@@ -103,22 +96,14 @@ export default function CheckoutPage() {
     if (!fullName.trim() || !phone.trim()) {
       return setMsg({ type: "err", text: "Please enter Full Name and Phone." });
     }
-
     if (deliveryMethod === "delivery" && !address.trim()) {
-      return setMsg({
-        type: "err",
-        text: "Please enter your delivery address.",
-      });
+      return setMsg({ type: "err", text: "Please enter your delivery address." });
     }
 
     setLoading(true);
     try {
       const payload = {
-        customer: {
-          fullName: fullName.trim(),
-          phone: phone.trim(),
-          email: email.trim(),
-        },
+        customer: { fullName: fullName.trim(), phone: phone.trim(), email: email.trim() },
         delivery: {
           method: deliveryMethod,
           address: deliveryMethod === "delivery" ? address.trim() : "",
@@ -154,17 +139,10 @@ export default function CheckoutPage() {
 
       localStorage.setItem(
         LAST_ORDER_KEY,
-        JSON.stringify({
-          orderId,
-          orderCode,
-          payload,
-          createdAt: new Date().toISOString(),
-        })
+        JSON.stringify({ orderId, orderCode, payload, createdAt: new Date().toISOString() })
       );
 
-      router.push(
-        `/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`
-      );
+      router.push(`/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`);
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Checkout failed" });
     } finally {
@@ -190,23 +168,13 @@ export default function CheckoutPage() {
       <section className="px-6 lg:px-20 pb-20">
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-3 gap-8">
           {/* Form */}
-          <div className="lg:col-span-2 card">
+          <div className="lg:col-span-2 card p-6">
             <h2 className="text-xl font-bold font-serif">Customer Info</h2>
 
             <div className="mt-6 grid md:grid-cols-2 gap-4">
               <Field label="Full Name" value={fullName} onChange={setFullName} />
-              <Field
-                label="Phone"
-                value={phone}
-                onChange={setPhone}
-                placeholder="0810..."
-              />
-              <Field
-                label="Email (optional)"
-                value={email}
-                onChange={setEmail}
-                type="email"
-              />
+              <Field label="Phone" value={phone} onChange={setPhone} placeholder="0810..." />
+              <Field label="Email (optional)" value={email} onChange={setEmail} type="email" />
             </div>
 
             <div className="mt-8">
@@ -243,7 +211,7 @@ export default function CheckoutPage() {
                   Note (optional)
                 </label>
                 <textarea
-                  className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
+                  className="input"
                   rows={4}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
@@ -256,8 +224,8 @@ export default function CheckoutPage() {
               <div
                 className={`mt-6 rounded-xl border p-4 text-sm ${
                   msg.type === "ok"
-                    ? "border-green-500/30 bg-green-500/10 text-green-300"
-                    : "border-red-500/30 bg-red-500/10 text-red-300"
+                    ? "border-green-500/30 bg-green-500/10 text-green-200"
+                    : "border-red-500/30 bg-red-500/10 text-red-200"
                 }`}
               >
                 {msg.text}
@@ -268,25 +236,26 @@ export default function CheckoutPage() {
               <button
                 onClick={placeOrder}
                 disabled={loading || !cart.length}
-                className="btn-primary px-6 py-3 text-sm disabled:opacity-60"
+                className="btn-primary px-6 py-3 text-sm hover:brightness-110 disabled:opacity-60"
               >
                 {loading ? "Placing..." : "Place Order"}
               </button>
 
-              <Link href="/cart" className="btn-outline px-6 py-3 text-sm">
+              <Link href="/cart" className="btn-outline px-6 py-3 text-sm hover:bg-white/10">
                 Back to Cart
               </Link>
             </div>
           </div>
 
-          <div className="card h-fit">
+          {/* Summary */}
+          <div className="card p-6 h-fit">
             <h2 className="text-xl font-bold font-serif">Order Summary</h2>
 
             <div className="mt-5 space-y-3 text-sm">
               {cart.map((it) => (
                 <div key={it.productId} className="flex justify-between gap-3">
-                  <div className="text-white/90">
-                    {it.title} <span className="muted">x{it.qty}</span>
+                  <div className="text-white/85">
+                    {it.title} <span className="text-white/55">x{it.qty}</span>
                   </div>
                   <div className="font-semibold">{formatNaira(it.price * it.qty)}</div>
                 </div>
@@ -295,11 +264,11 @@ export default function CheckoutPage() {
               <div className="h-px bg-white/10 my-3" />
 
               <div className="flex justify-between">
-                <span className="muted">Subtotal</span>
+                <span className="muted2">Subtotal</span>
                 <span className="font-semibold">{formatNaira(subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="muted">Delivery</span>
+                <span className="muted2">Delivery</span>
                 <span className="font-semibold">{formatNaira(deliveryFee)}</span>
               </div>
               <div className="flex justify-between text-base font-bold pt-2">
@@ -307,7 +276,7 @@ export default function CheckoutPage() {
                 <span className="text-[color:var(--accent)]">{formatNaira(total)}</span>
               </div>
 
-              <p className="text-xs muted pt-2">
+              <p className="text-xs text-white/55 pt-2">
                 Delivery fee can be adjusted if location differs.
               </p>
             </div>
@@ -320,10 +289,9 @@ export default function CheckoutPage() {
 
 function Header() {
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-      <BrandLogo />
-
-      <Link href="/cart" className="btn-outline px-5 py-2 text-xs">
+    <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
+      <BrandLogo size={54} />
+      <Link href="/cart" className="btn-outline px-5 py-2 text-xs hover:bg-white/10">
         Cart
       </Link>
     </header>
@@ -353,7 +321,7 @@ function Field({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
+        className="input"
       />
     </div>
   );
@@ -375,13 +343,9 @@ function Select({
       <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
-      >
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="input">
         {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-[#14001f]">
+          <option key={o.value} value={o.value} className="bg-[#120018]">
             {o.label}
           </option>
         ))}

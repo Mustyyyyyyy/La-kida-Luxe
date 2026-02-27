@@ -80,10 +80,10 @@ export default function PoliciesPage() {
               If you have any questions about delivery, sizes, fittings, or pricing—message us.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Link href="/contact" className="btn-primary px-7 py-3 text-sm text-center">
+              <Link href="/contact" className="btn-primary px-7 py-3 text-sm hover:brightness-110 text-center">
                 Contact Us
               </Link>
-              <Link href="/shop" className="btn-outline px-7 py-3 text-sm text-center">
+              <Link href="/shop" className="btn-outline px-7 py-3 text-sm hover:bg-white/10 text-center">
                 Continue Shopping
               </Link>
             </div>
@@ -96,25 +96,16 @@ export default function PoliciesPage() {
   );
 }
 
-function PolicyCard({
-  title,
-  icon,
-  items,
-}: {
-  title: string;
-  icon: string;
-  items: string[];
-}) {
+function PolicyCard({ title, icon, items }: { title: string; icon: string; items: string[] }) {
   return (
-    <div className="card-soft p-7">
+    <div className="card p-7">
       <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-full bg-[rgba(242,208,13,0.12)] flex items-center justify-center text-[color:var(--accent)]">
+        <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center text-white/90">
           <span className="material-symbols-outlined">{icon}</span>
         </div>
         <h3 className="text-xl font-bold font-serif">{title}</h3>
       </div>
-
-      <ul className="mt-5 space-y-2 text-white/90">
+      <ul className="mt-5 space-y-2 muted">
         {items.map((t, idx) => (
           <li key={idx} className="flex gap-3">
             <span className="material-symbols-outlined text-[color:var(--accent)] text-xl">
@@ -130,10 +121,9 @@ function PolicyCard({
 
 function Header() {
   return (
-    <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
+    <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
       <div className="flex items-center gap-10">
-        <BrandLogo />
-
+        <BrandLogo size={54} />
         <nav className="hidden md:flex items-center gap-8">
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/shop">
             Shop
@@ -153,13 +143,13 @@ function Header() {
       <div className="flex items-center gap-4">
         <Link
           href="/cart"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-[rgba(242,208,13,0.30)] text-[color:var(--accent)] hover:bg-[rgba(242,208,13,0.10)]"
+          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/15 text-white/90 hover:bg-white/10"
           aria-label="Cart"
         >
           <span className="material-symbols-outlined">shopping_bag</span>
         </Link>
 
-        <Link href="/shop" className="btn-primary px-6 py-2 text-xs">
+        <Link href="/shop" className="btn-primary px-6 py-2 text-sm hover:brightness-110">
           Shop Now
         </Link>
       </div>
@@ -169,21 +159,19 @@ function Header() {
 
 function Footer() {
   return (
-    <footer className="bg-[rgba(20,0,31,1)] text-white py-16 px-6 lg:px-20 border-t border-white/10">
+    <footer className="mt-16 border-t border-white/10 bg-[rgba(18,0,24,0.65)] px-6 lg:px-20 py-16">
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
         <div className="space-y-6">
-          <BrandLogo />
-          <p className="muted text-sm leading-relaxed">
-            Redefining luxury through the lens of African craftsmanship.
-          </p>
-          <p className="muted text-sm">Lagos, Nigeria</p>
+          <BrandLogo size={56} />
+          <p className="text-sm muted2">Redefining luxury through the lens of African craftsmanship.</p>
+          <p className="text-sm muted2">Lagos, Nigeria</p>
         </div>
 
         <div>
           <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
             Explore
           </h4>
-          <ul className="space-y-4 text-sm muted">
+          <ul className="space-y-4 text-sm text-white/70">
             <li><Link className="hover:text-[color:var(--accent)]" href="/shop">Shop</Link></li>
             <li><Link className="hover:text-[color:var(--accent)]" href="/custom-order">Custom Order</Link></li>
             <li><Link className="hover:text-[color:var(--accent)]" href="/about">About</Link></li>
@@ -195,7 +183,7 @@ function Footer() {
           <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm mb-6">
             Concierge
           </h4>
-          <ul className="space-y-4 text-sm muted">
+          <ul className="space-y-4 text-sm text-white/70">
             <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Shipping & Returns</Link></li>
             <li><Link className="hover:text-[color:var(--accent)]" href="/policies">Size Guide</Link></li>
             <li><Link className="hover:text-[color:var(--accent)]" href="/policies">FAQ</Link></li>
@@ -206,22 +194,16 @@ function Footer() {
           <h4 className="text-[color:var(--accent)] font-bold uppercase tracking-widest text-sm">
             Newsletter
           </h4>
-          <p className="muted text-sm">
-            Join the inner circle for exclusive previews.
-          </p>
+          <p className="text-sm muted2">Join the inner circle for exclusive previews.</p>
           <NewsletterForm />
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs muted uppercase tracking-[0.2em]">
+      <div className="max-w-[1400px] mx-auto mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50 uppercase tracking-[0.2em]">
         <p>©️ {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.</p>
         <div className="flex gap-8">
-          <Link className="hover:text-[color:var(--accent)]" href="/policies">
-            Privacy
-          </Link>
-          <Link className="hover:text-[color:var(--accent)]" href="/policies">
-            Terms
-          </Link>
+          <Link className="hover:text-[color:var(--accent)]" href="/policies">Privacy</Link>
+          <Link className="hover:text-[color:var(--accent)]" href="/policies">Terms</Link>
         </div>
       </div>
     </footer>

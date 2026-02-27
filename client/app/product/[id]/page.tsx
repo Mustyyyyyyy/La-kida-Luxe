@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -74,10 +73,7 @@ export default function ProductDetailsPage() {
       try {
         setLoading(true);
         setErr("");
-
-        const res = await fetch(`${API_URL}/api/products/${id}`, {
-          cache: "no-store",
-        });
+        const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.message || "Failed to load product.");
 
@@ -138,14 +134,14 @@ export default function ProductDetailsPage() {
 
   return (
     <main className="page">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(20,0,31,0.78)] backdrop-blur-md px-6 lg:px-20 py-4 flex items-center justify-between">
-        <BrandLogo />
+      <header className="sticky top-0 z-40 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
+        <BrandLogo size={54} />
 
         <div className="flex items-center gap-3">
-          <Link href="/shop" className="btn-outline px-4 py-2 text-xs">
+          <Link href="/shop" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
             Shop
           </Link>
-          <Link href="/cart" className="btn-primary px-4 py-2 text-xs">
+          <Link href="/cart" className="btn-primary px-4 py-2 text-xs hover:brightness-110">
             Cart
           </Link>
         </div>
@@ -161,7 +157,7 @@ export default function ProductDetailsPage() {
               <div className="mt-4">
                 <button
                   onClick={() => router.push("/shop")}
-                  className="btn-primary px-6 py-3 text-xs"
+                  className="btn-primary px-6 py-3 text-xs hover:brightness-110"
                 >
                   Back to Shop
                 </button>
@@ -169,16 +165,9 @@ export default function ProductDetailsPage() {
             </div>
           ) : product ? (
             <div className="grid lg:grid-cols-2 gap-10">
-              {/* Images */}
               <div className="space-y-4">
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-black/20">
-                  <Image
-                    src={mainImage}
-                    alt={product.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
+                <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/20">
+                  <img src={mainImage} alt={product.title} className="w-full h-full object-cover" />
                 </div>
 
                 {product.images?.length ? (
@@ -186,21 +175,15 @@ export default function ProductDetailsPage() {
                     {product.images.map((img) => (
                       <div
                         key={img.publicId}
-                        className="relative w-20 h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex-shrink-0"
+                        className="w-20 h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex-shrink-0"
                       >
-                        <Image
-                          src={img.url}
-                          alt={product.title}
-                          fill
-                          className="object-cover"
-                        />
+                        <img src={img.url} alt={product.title} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
                 ) : null}
               </div>
 
-              {/* Details */}
               <div className="card p-7 md:p-10">
                 <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent)] font-bold">
                   {product.category || "General"}
@@ -215,11 +198,11 @@ export default function ProductDetailsPage() {
                 </p>
 
                 <div className="mt-4">
-                  <span className="badge">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-white/15 bg-white/10 text-white">
                     {product.inStock === false ? "Out of stock" : "Available"}
                   </span>
                   {typeof product.stockQty === "number" ? (
-                    <span className="ml-3 text-xs muted">Stock: {product.stockQty}</span>
+                    <span className="ml-3 text-xs muted2">Stock: {product.stockQty}</span>
                   ) : null}
                 </div>
 
@@ -254,18 +237,17 @@ export default function ProductDetailsPage() {
                   <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
                     Quantity
                   </label>
-
                   <div className="mt-2 inline-flex items-center gap-2">
                     <button
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
+                      className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-bold"
                     >
                       −
                     </button>
                     <div className="w-12 text-center font-bold">{qty}</div>
                     <button
                       onClick={() => setQty((q) => q + 1)}
-                      className="w-10 h-10 rounded-lg border border-[rgba(242,208,13,0.25)] hover:bg-[rgba(242,208,13,0.10)] font-bold"
+                      className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-bold"
                     >
                       +
                     </button>
@@ -273,11 +255,10 @@ export default function ProductDetailsPage() {
                 </div>
 
                 <div className="mt-8 grid sm:grid-cols-2 gap-3">
-                  <button onClick={addToCartNow} className="btn-primary py-4 text-sm">
+                  <button onClick={addToCartNow} className="btn-primary py-4 text-sm hover:brightness-110">
                     Add to Cart
                   </button>
-
-                  <Link href="/custom-order" className="btn-outline py-4 text-sm text-center">
+                  <Link href="/custom-order" className="btn-outline py-4 text-sm hover:bg-white/10 text-center">
                     Request Custom
                   </Link>
                 </div>
@@ -289,7 +270,7 @@ export default function ProductDetailsPage() {
 
       {toast ? (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
-          <div className="rounded-full border border-[rgba(242,208,13,0.25)] bg-[rgba(20,0,31,0.92)] text-white px-5 py-2 text-sm shadow-xl">
+          <div className="rounded-full border border-white/10 bg-[rgba(18,0,24,0.9)] text-white px-5 py-2 text-sm shadow-xl">
             {toast}
           </div>
         </div>
@@ -314,13 +295,9 @@ function Select({
       <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-4 py-3"
-      >
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="input">
         {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-[#14001f]">
+          <option key={o.value} value={o.value} className="bg-[#120018]">
             {o.label}
           </option>
         ))}
