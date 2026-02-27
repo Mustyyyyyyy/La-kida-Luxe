@@ -2,12 +2,17 @@
 
 import { useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(
+  /\/$/,
+  ""
+);
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
+    null
+  );
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,14 +32,21 @@ export default function NewsletterForm() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const text = data?.message || data?.errors?.[0]?.message || "Could not subscribe.";
+        const text =
+          data?.message ||
+          data?.errors?.[0]?.message ||
+          `Could not subscribe (HTTP ${res.status}).`;
         setMsg({ type: "err", text });
-      } else {
-        setMsg({ type: "ok", text: data?.message || "Subscribed!" });
-        setEmail("");
+        return;
       }
-    } catch {
-      setMsg({ type: "err", text: "Network error. Try again." });
+
+      setMsg({ type: "ok", text: data?.message || "Subscribed!" });
+      setEmail("");
+    } catch (err: any) {
+      setMsg({
+        type: "err",
+        text: err?.message || "Network error. Check backend URL + CORS.",
+      });
     } finally {
       setLoading(false);
     }
@@ -50,12 +62,21 @@ export default function NewsletterForm() {
         onChange={(e) => setEmail(e.target.value)}
         disabled={loading}
       />
-      <button type="submit" disabled={loading} className="btn-primary py-3 text-sm hover:brightness-110 disabled:opacity-60">
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn-primary py-3 text-sm hover:brightness-110 disabled:opacity-60"
+      >
         {loading ? "Subscribing..." : "Subscribe"}
       </button>
 
       {msg ? (
-        <p className={`text-xs mt-1 ${msg.type === "ok" ? "text-green-300" : "text-red-300"}`}>
+        <p
+          className={`text-xs mt-1 ${
+            msg.type === "ok" ? "text-green-300" : "text-red-300"
+          }`}
+        >
           {msg.text}
         </p>
       ) : null}

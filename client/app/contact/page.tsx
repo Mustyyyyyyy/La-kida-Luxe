@@ -11,7 +11,7 @@ function waLink(message: string) {
 }
 
 export default function ContactPage() {
-  const message = "Hi LA'KIDA, I want to ask about an order / custom tailoring.";
+  const message = "Hi LA'KIDA, I want to ask about an order / custom designs.";
 
   return (
     <main className="page">
@@ -52,7 +52,7 @@ export default function ContactPage() {
                 icon="mail"
                 title="Email"
                 desc="For formal inquiries and collaborations."
-                action={<p className="muted font-medium">lakida@yourbrand.com</p>}
+                action={<p className="muted font-medium">damilolakafilat8@gmail.com</p>}
               />
               <InfoCard
                 icon="location_on"
