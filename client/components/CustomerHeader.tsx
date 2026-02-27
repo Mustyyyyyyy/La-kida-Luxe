@@ -35,7 +35,6 @@ export default function CustomerHeader() {
     { label: "Register", href: "/register" },
   ];
 
-  // ✅ added Dashboard
   const linksLoggedIn = [
     { label: "Dashboard", href: "/dashboard" },
     { label: "Shop", href: "/shop" },
@@ -48,6 +47,33 @@ export default function CustomerHeader() {
       <div className="flex items-center justify-between gap-3">
         <BrandLogo size={44} showText={true} />
 
+        {/* ✅ Right side: dashboard visible (logged in) + menu */}
+        <div className="flex items-center gap-2">
+          {loggedIn ? (
+            <Link
+              href="/dashboard"
+              className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
+              aria-label="Dashboard"
+              title="Dashboard"
+            >
+              <span className="material-symbols-outlined text-base">grid_view</span>
+              <span className="ml-2 hidden sm:inline">Dashboard</span>
+            </Link>
+          ) : null}
+
+          <button
+            className="md:hidden btn-outline px-3 py-2"
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Open menu"
+            type="button"
+          >
+            <span className="material-symbols-outlined text-xl">
+              {open ? "close" : "menu"}
+            </span>
+          </button>
+        </div>
+
+        {/* Desktop links */}
         <nav className="hidden md:flex items-center gap-3">
           {(loggedIn ? linksLoggedIn : linksLoggedOut).map((l) => (
             <Link
@@ -65,6 +91,7 @@ export default function CustomerHeader() {
               className="btn-primary px-4 py-2 text-xs hover:brightness-110 inline-flex items-center gap-2"
               aria-label="Logout"
               title="Logout"
+              type="button"
             >
               <span className="material-symbols-outlined text-base">logout</span>
               Logout
@@ -78,18 +105,9 @@ export default function CustomerHeader() {
             </Link>
           )}
         </nav>
-
-        <button
-          className="md:hidden btn-outline px-3 py-2"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Open menu"
-        >
-          <span className="material-symbols-outlined text-xl">
-            {open ? "close" : "menu"}
-          </span>
-        </button>
       </div>
 
+      {/* Mobile menu */}
       {open ? (
         <div className="md:hidden mt-3 card p-3">
           <div className="grid gap-2">
@@ -107,6 +125,7 @@ export default function CustomerHeader() {
               <button
                 onClick={() => logout(router)}
                 className="btn-primary px-4 py-3 text-sm hover:brightness-110 inline-flex items-center justify-center gap-2"
+                type="button"
               >
                 <span className="material-symbols-outlined">logout</span>
                 Logout

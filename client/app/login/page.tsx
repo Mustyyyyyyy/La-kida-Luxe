@@ -153,10 +153,12 @@ export default function LoginPage() {
                   Create one
                 </Link>
               </p>
-
-              <p className="text-xs muted">
-                Admin accounts are created by the store owner (seed script), not via public signup.
+              <p className="text-sm muted">
+                <Link href="/policies" className="text-[color:var(--accent)] font-bold hover:underline">
+                  Terma and Privacy
+                </Link>
               </p>
+
             </form>
           </div>
         </div>
