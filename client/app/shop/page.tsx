@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "@/lib/api";
 import BrandLogo from "@/components/BrandLogo";
+import CustomerHeader from "@/components/CustomerHeader";
 
 type Product = {
   _id: string;
@@ -131,7 +132,7 @@ export default function ShopPage() {
 
   return (
     <main className="page">
-      <Header />
+      <CustomerHeader />
 
       <section className="pt-24 pb-10 px-6 lg:px-20">
         <div className="max-w-[1400px] mx-auto">

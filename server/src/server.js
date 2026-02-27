@@ -9,6 +9,7 @@ const orderRoutes = require("./routes/order.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const contactRoutes = require("./routes/contact.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
+const profileRoutes = require("./routes/profile.routes");
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/newsletter", newsletterRoutes); 
 app.use("/api/contact", contactRoutes);
+app.use("/api/me", profileRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));

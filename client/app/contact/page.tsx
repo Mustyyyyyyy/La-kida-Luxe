@@ -2,6 +2,7 @@ import ContactForm from "@/components/ContactForm";
 import NewsletterForm from "@/components/NewsletterForm";
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
+import CustomerHeader from "@/components/CustomerHeader";
 
 const WHATSAPP_NUMBER = "2348109115088";
 
@@ -14,7 +15,7 @@ export default function ContactPage() {
 
   return (
     <main className="page">
-      <Header />
+      <CustomerHeader />
 
       <section className="pt-28 pb-16 px-6 lg:px-20">
         <div className="max-w-[1100px] mx-auto">

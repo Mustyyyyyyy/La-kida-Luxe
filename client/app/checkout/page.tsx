@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
+import CustomerHeader from "@/components/CustomerHeader";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 type CartItem = {
   productId: string;
@@ -70,11 +71,16 @@ export default function CheckoutPage() {
   const [note, setNote] = useState("");
 
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [mustLogin, setMustLogin] = useState(false);
 
   useEffect(() => {
     const c = loadCart();
     setCart(c);
     setSettings(loadSettings());
+
+    const token = localStorage.getItem("token");
+    setMustLogin(!token);
+
     if (!c.length) router.replace("/shop");
   }, [router]);
 
@@ -92,6 +98,12 @@ export default function CheckoutPage() {
 
   async function placeOrder() {
     setMsg(null);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setMustLogin(true);
+      return setMsg({ type: "err", text: "Please login to place an order." });
+    }
 
     if (!fullName.trim() || !phone.trim()) {
       return setMsg({ type: "err", text: "Please enter Full Name and Phone." });
@@ -127,7 +139,10 @@ export default function CheckoutPage() {
 
       const res = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, 
+        },
         body: JSON.stringify(payload),
       });
 
@@ -142,7 +157,9 @@ export default function CheckoutPage() {
         JSON.stringify({ orderId, orderCode, payload, createdAt: new Date().toISOString() })
       );
 
-      router.push(`/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`);
+      router.push(
+        `/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`
+      );
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Checkout failed" });
     } finally {
@@ -152,24 +169,35 @@ export default function CheckoutPage() {
 
   return (
     <main className="page">
-      <Header />
+      <CustomerHeaderHeader />
 
       <section className="pt-24 pb-10 px-6 lg:px-20">
         <div className="max-w-[1200px] mx-auto">
           <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
             Checkout
           </span>
-          <h1 className="mt-2 text-4xl md:text-5xl font-bold font-serif">
-            Confirm Details
-          </h1>
+          <h1 className="mt-2 text-4xl md:text-5xl font-bold font-serif">Confirm Details</h1>
         </div>
       </section>
 
       <section className="px-6 lg:px-20 pb-20">
         <div className="max-w-[1200px] mx-auto grid lg:grid-cols-3 gap-8">
-          {/* Form */}
           <div className="lg:col-span-2 card p-6">
             <h2 className="text-xl font-bold font-serif">Customer Info</h2>
+
+            {mustLogin ? 
+              <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                Please login to place an order.
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <Link href="/login" className="btn-primary px-5 py-2 text-xs hover:brightness-110">
+                    Login
+                  </Link>
+                  <Link href="/register" className="btn-outline px-5 py-2 text-xs hover:bg-white/10">
+                    Create account
+                  </Link>
+                </div>
+              </div>
+             : null}
 
             <div className="mt-6 grid md:grid-cols-2 gap-4">
               <Field label="Full Name" value={fullName} onChange={setFullName} />
@@ -235,7 +263,7 @@ export default function CheckoutPage() {
             <div className="mt-8 flex gap-3">
               <button
                 onClick={placeOrder}
-                disabled={loading || !cart.length}
+                disabled={loading || !cart.length || mustLogin}
                 className="btn-primary px-6 py-3 text-sm hover:brightness-110 disabled:opacity-60"
               >
                 {loading ? "Placing..." : "Place Order"}
@@ -247,7 +275,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Summary */}
           <div className="card p-6 h-fit">
             <h2 className="text-xl font-bold font-serif">Order Summary</h2>
 

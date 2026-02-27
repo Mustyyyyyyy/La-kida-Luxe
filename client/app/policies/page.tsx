@@ -1,11 +1,12 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import NewsletterForm from "@/components/NewsletterForm";
+import CustomerHeader from "@/components/CustomerHeader";
 
 export default function PoliciesPage() {
   return (
     <main className="page">
-      <Header />
+      <CustomerHeader />
 
       <section className="pt-28 pb-16 px-6 lg:px-20">
         <div className="max-w-[1100px] mx-auto">

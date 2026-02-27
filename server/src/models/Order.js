@@ -28,51 +28,50 @@ const MeasurementSchema = new mongoose.Schema(
   { _id: false }
 );
 
+
 const OrderSchema = new mongoose.Schema(
   {
-    orderCode: { type: String, unique: true, index: true },
+    orderCode: { type: String, required: true, unique: true },
+
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
     customer: {
-      fullName: { type: String, required: true },
-      phone: { type: String, required: true },
-      email: { type: String, default: "" },
+      fullName: String,
+      phone: String,
+      email: String,
     },
 
     delivery: {
-      address: { type: String, required: true },
-      city: { type: String, default: "" },
-      state: { type: String, default: "" },
-      method: { type: String, enum: ["standard", "express", "pickup"], default: "standard" },
+      method: { type: String, default: "delivery" },
+      address: String,
+      city: String,
+      state: String,
+      note: String,
     },
 
-    items: { type: [OrderItemSchema], default: [] },
+    items: [
+      {
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+        title: String,
+        price: Number,
+        qty: Number,
+        size: String,
+        color: String,
+      },
+    ],
 
-    // Tailor/custom order support
-    isCustom: { type: Boolean, default: false },
-    custom: {
-      styleType: { type: String, default: "" },
-      fabric: { type: String, default: "" },
-      measurements: { type: MeasurementSchema, default: {} },
-      referenceImages: { type: [String], default: [] }, // can be Cloudinary URLs later
-      specialInstructions: { type: String, default: "" },
-    },
-
-    subtotal: { type: Number, default: 0 },
-    deliveryFee: { type: Number, default: 0 },
-    total: { type: Number, default: 0 },
+    subtotal: Number,
+    deliveryFee: Number,
+    total: Number,
 
     status: {
       type: String,
       enum: ["pending_whatsapp", "confirmed", "in_progress", "ready", "delivered", "cancelled"],
       default: "pending_whatsapp",
     },
-
-    payment: {
-      method: { type: String, enum: ["whatsapp", "bank_transfer", "paystack", "cash"], default: "whatsapp" },
-      paid: { type: Boolean, default: false },
-    },
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("Order", OrderSchema);
