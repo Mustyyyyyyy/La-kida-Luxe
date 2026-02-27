@@ -203,7 +203,7 @@ function Footer() {
             </li>
             <li>
               <Link className="hover:text-[#f2d00d]" href="/custom-order">
-                Custom Order
+                Custom Designs
               </Link>
             </li>
             <li>

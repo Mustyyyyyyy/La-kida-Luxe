@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 const CART_KEY = "lakida_cart";
 
 type Product = {
@@ -66,6 +66,8 @@ export default function ProductDetailsPage() {
   const [color, setColor] = useState("");
   const [toast, setToast] = useState("");
 
+  const [notifyLoading, setNotifyLoading] = useState(false);
+
   useEffect(() => {
     let mounted = true;
 
@@ -73,11 +75,13 @@ export default function ProductDetailsPage() {
       try {
         setLoading(true);
         setErr("");
+
         const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data?.message || "Failed to load product.");
 
         if (!mounted) return;
+
         setProduct(data);
 
         if (data?.sizes?.length) setSize(data.sizes[0]);
@@ -101,6 +105,15 @@ export default function ProductDetailsPage() {
     [product]
   );
 
+  const outOfStock = useMemo(() => {
+    if (!product) return false;
+    const qty = Number(product.stockQty);
+    const qtyKnown = Number.isFinite(qty);
+    const noQty = qtyKnown ? qty <= 0 : false;
+
+    return product.inStock === false || noQty;
+  }, [product]);
+
   function showToast(text: string) {
     setToast(text);
     window.clearTimeout((showToast as any)._t);
@@ -109,6 +122,10 @@ export default function ProductDetailsPage() {
 
   function addToCartNow() {
     if (!product) return;
+    if (outOfStock) {
+      showToast("Out of stock");
+      return;
+    }
 
     const cart = loadCart();
     const idx = cart.findIndex(
@@ -130,6 +147,33 @@ export default function ProductDetailsPage() {
 
     saveCart(cart);
     showToast("Added to cart");
+  }
+
+  async function notifyMe() {
+    if (!product) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    setNotifyLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/stock-alerts/${product._id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Could not subscribe");
+
+      showToast(data?.message || "Saved! We’ll email you when it’s back.");
+    } catch (e: any) {
+      showToast(e?.message || "Notify failed");
+    } finally {
+      setNotifyLoading(false);
+    }
   }
 
   return (
@@ -198,9 +242,15 @@ export default function ProductDetailsPage() {
                 </p>
 
                 <div className="mt-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-white/15 bg-white/10 text-white">
-                    {product.inStock === false ? "Out of stock" : "Available"}
+                  <span
+                    className={[
+                      "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-white/15",
+                      outOfStock ? "bg-red-500/15 text-red-200" : "bg-white/10 text-white",
+                    ].join(" ")}
+                  >
+                    {outOfStock ? "Out of stock" : "Available"}
                   </span>
+
                   {typeof product.stockQty === "number" ? (
                     <span className="ml-3 text-xs muted2">Stock: {product.stockQty}</span>
                   ) : null}
@@ -241,6 +291,7 @@ export default function ProductDetailsPage() {
                     <button
                       onClick={() => setQty((q) => Math.max(1, q - 1))}
                       className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-bold"
+                      disabled={outOfStock}
                     >
                       −
                     </button>
@@ -248,20 +299,53 @@ export default function ProductDetailsPage() {
                     <button
                       onClick={() => setQty((q) => q + 1)}
                       className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-bold"
+                      disabled={outOfStock}
                     >
                       +
                     </button>
                   </div>
                 </div>
 
-                <div className="mt-8 grid sm:grid-cols-2 gap-3">
-                  <button onClick={addToCartNow} className="btn-primary py-4 text-sm hover:brightness-110">
-                    Add to Cart
-                  </button>
-                  <Link href="/custom-order" className="btn-outline py-4 text-sm hover:bg-white/10 text-center">
-                    Request Custom
-                  </Link>
-                </div>
+                {/* ACTIONS */}
+                {outOfStock ? (
+                  <div className="mt-8 space-y-3">
+                    <button
+                      onClick={notifyMe}
+                      disabled={notifyLoading}
+                      className="btn-outline w-full py-4 text-sm hover:bg-white/10 disabled:opacity-60"
+                      type="button"
+                    >
+                      {notifyLoading ? "Saving..." : "Notify me when back in stock"}
+                    </button>
+
+                    <Link
+                      href="/custom-order"
+                      className="btn-primary w-full py-4 text-sm hover:brightness-110 text-center"
+                    >
+                      Request Custom
+                    </Link>
+
+                    <p className="text-xs muted2">
+                      We’ll email you when this item is available again.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-8 grid sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={addToCartNow}
+                      className="btn-primary py-4 text-sm hover:brightness-110"
+                      type="button"
+                    >
+                      Add to Cart
+                    </button>
+                    <Link
+                      href="/custom-order"
+                      className="btn-outline py-4 text-sm hover:bg-white/10 text-center"
+                    >
+                      Request Custom
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           ) : null}

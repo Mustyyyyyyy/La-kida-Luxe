@@ -24,73 +24,79 @@ h3,
 }
 
 :root{
-  /* Lilac theme */
-  --bg: #120018;                 /* deep lilac */
-  --bg2: #1a0524;                /* deep lilac (cards) */
-  --lilac: #b58cff;              /* primary lilac */
-  --lilac2: #e8d9ff;             /* soft lilac text */
-  --accent: #f2d00d;             /* gold (buttons / highlights) */
+
+  --bg: #E9D5FF;        
+  --bg2: #D8B4FE;       
+  --accent: #4C1D95;    
+  --accent2: #6D28D9;  
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.70);
+  --border: rgba(255,255,255,0.12);
 }
 
 .page{
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
-  color: #fff;
-  background:
-    radial-gradient(900px 500px at 15% 0%, rgba(181, 140, 255, 0.22), transparent 60%),
-    radial-gradient(900px 500px at 85% 20%, rgba(181, 140, 255, 0.14), transparent 60%),
-    var(--bg);
 }
 
 .topbar{
-  background: rgba(18, 0, 24, 0.72);
+  background: rgba(76, 29, 149, 0.20); 
+  border-bottom: 1px solid var(--border);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(181, 140, 255, 0.18);
 }
 
 .card{
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(181, 140, 255, 0.22);
-  border-radius: 18px;
+  background: rgba(76, 29, 149, 0.12);
+  border: 1px solid var(--border);
+  border-radius: 16px;
 }
-
-.muted{ color: rgba(255,255,255,0.78); }
-.muted2{ color: rgba(255,255,255,0.62); }
 
 .btn-primary{
   background: var(--accent);
-  color: #1a1022;
+  color: white;
   border-radius: 12px;
   font-weight: 800;
-  letter-spacing: .15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
+.btn-primary:hover{ background: var(--accent2); }
+
 .btn-outline{
-  border: 1px solid rgba(181, 140, 255, 0.35);
-  color: var(--lilac2);
+  border: 1px solid rgba(76, 29, 149, 0.40);
+  color: var(--accent);
   border-radius: 12px;
   font-weight: 800;
-  letter-spacing: .15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+  background: rgba(255,255,255,0.10);
+}
+
+.btn-outline:hover{
+  background: rgba(255,255,255,0.16);
 }
 
 .input{
   width: 100%;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(181, 140, 255, 0.22);
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(76, 29, 149, 0.25);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #fff;
-  outline: none;
+  color: rgba(0,0,0,0.85);
 }
-.input:focus{
-  border-color: rgba(242, 208, 13, 0.65);
-  box-shadow: 0 0 0 3px rgba(242, 208, 13, 0.12);
-}
-.footer {
-  background: rgba(18, 0, 24, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(181, 140, 255, 0.18);
+
+.muted{ color: rgba(0,0,0,0.65); }
+.muted2{ color: rgba(0,0,0,0.55); }
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(76, 29, 149, 0.15);
+  border: 1px solid rgba(76, 29, 149, 0.25);
+  color: var(--accent);
 }

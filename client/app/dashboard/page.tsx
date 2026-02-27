@@ -106,7 +106,7 @@ export default function CustomerDashboardPage() {
             <h2 className="text-xl font-bold font-serif">Quick Actions</h2>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link href="/custom-order" className="btn-primary px-6 py-3 text-sm hover:brightness-110">
-                Request Custom Order
+                Request Custom Designs
               </Link>
               <Link href="/contact" className="btn-outline px-6 py-3 text-sm hover:bg-white/10">
                 Contact Support

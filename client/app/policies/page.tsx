@@ -45,10 +45,10 @@ export default function PoliciesPage() {
             />
 
             <PolicyCard
-              title="Custom Orders (Tailoring)"
+              title="Custom Design"
               icon="content_cut"
               items={[
-                "Custom orders are made-to-measure and cannot be returned.",
+                "Custom Designs are made-to-measure and cannot be returned.",
                 "If there is a fitting issue, we offer adjustments based on agreement.",
                 "Please provide accurate measurements for the best fit.",
               ]}
@@ -130,7 +130,7 @@ function Header() {
             Shop
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
-            Custom Order
+            Custom Designs
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/about">
             About

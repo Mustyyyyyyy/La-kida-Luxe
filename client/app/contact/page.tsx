@@ -4,7 +4,7 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import CustomerHeader from "@/components/CustomerHeader";
 
-const WHATSAPP_NUMBER = "2348109115088";
+const WHATSAPP_NUMBER = "2347065630239";
 
 function waLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -115,7 +115,7 @@ function Header() {
             Shop
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
-            Custom Order
+            Custom Designs
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/about">
             About

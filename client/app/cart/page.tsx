@@ -210,7 +210,7 @@ function Header() {
             Shop
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
-            Custom Order
+            Custom Designs
           </Link>
           <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/contact">
             Contact
