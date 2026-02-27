@@ -61,16 +61,34 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    const id = req.params.id;
+
+    const body = req.body || {};
+
+    const update = {
+      title: body.title,
+      price: Number(body.price) || 0,
+      category: body.category || "",
+      description: body.description || "",
+      inStock: body.inStock !== false,
+      stockQty: typeof body.stockQty === "number" ? body.stockQty : Number(body.stockQty) || 0,
+      sizes: Array.isArray(body.sizes) ? body.sizes : [],
+      colors: Array.isArray(body.colors) ? body.colors : [],
+    };
+
+    Object.keys(update).forEach((k) => update[k] === undefined && delete update[k]);
+
+    const product = await Product.findByIdAndUpdate(id, update, {
       new: true,
+      runValidators: true,
     });
 
-    if (!updated) return res.status(404).json({ message: "Product not found" });
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    res.json(updated);
+    res.json(product);
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Could not update product" });
   }
 };
 
@@ -78,12 +96,6 @@ exports.deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Product not found" });
-
-    // optional: delete cloudinary images
-    // if you store publicId and have cloudinary config:
-    // for (const img of deleted.images || []) {
-    //   if (img.publicId) await cloudinary.uploader.destroy(img.publicId);
-    // }
 
     res.json({ message: "Deleted" });
   } catch (e) {
