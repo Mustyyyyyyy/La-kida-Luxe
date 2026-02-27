@@ -4,10 +4,14 @@ import { useEffect, useState } from "react";
 
 type Settings = {
   brandName: string;
-  whatsappNumber: string; 
+  whatsappNumber: string;
   businessEmail: string;
   location: string;
   deliveryFee: number;
+
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
 };
 
 const KEY = "lakida_admin_settings";
@@ -18,6 +22,10 @@ const DEFAULTS: Settings = {
   businessEmail: "lakida@yourbrand.com",
   location: "Lagos, Nigeria",
   deliveryFee: 0,
+
+  bankName: "",
+  accountName: "",
+  accountNumber: "",
 };
 
 export default function AdminSettingsPage() {
@@ -31,8 +39,7 @@ export default function AdminSettingsPage() {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setSettings({ ...DEFAULTS, ...(JSON.parse(raw) as Partial<Settings>) });
-    } catch {
-    }
+    } catch {}
   }, []);
 
   function update<K extends keyof Settings>(key: K, value: Settings[K]) {
@@ -50,6 +57,10 @@ export default function AdminSettingsPage() {
         businessEmail: settings.businessEmail.trim(),
         location: settings.location.trim(),
         deliveryFee: Number(settings.deliveryFee) || 0,
+
+        bankName: settings.bankName.trim(),
+        accountName: settings.accountName.trim(),
+        accountNumber: settings.accountNumber.replace(/\s+/g, ""),
       };
 
       localStorage.setItem(KEY, JSON.stringify(cleaned));
@@ -72,21 +83,24 @@ export default function AdminSettingsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl md:text-4xl font-bold font-serif">Settings</h1>
+        <p className="mt-2 text-sm muted">
+          These settings control WhatsApp checkout and payment details.
+        </p>
       </div>
 
       {msg ? (
         <div
           className={`rounded-2xl border p-4 text-sm ${
             msg.type === "ok"
-              ? "border-green-500/30 bg-green-500/10 text-green-500"
-              : "border-red-500/30 bg-red-500/10 text-red-500"
+              ? "border-green-500/30 bg-green-500/10 text-green-200"
+              : "border-red-500/30 bg-red-500/10 text-red-200"
           }`}
         >
           {msg.text}
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-6 max-w-2xl">
+      <div className="card p-6 max-w-2xl">
         <div className="grid gap-5">
           <Field
             label="Brand name"
@@ -94,28 +108,63 @@ export default function AdminSettingsPage() {
             onChange={(v) => update("brandName", v)}
             placeholder="LA'KIDA"
           />
+
           <Field
             label="WhatsApp number (international format)"
             value={settings.whatsappNumber}
             onChange={(v) => update("whatsappNumber", v)}
             placeholder="2348109115088"
           />
+
           <Field
             label="Business email"
             value={settings.businessEmail}
             onChange={(v) => update("businessEmail", v)}
             placeholder="lakida@yourbrand.com"
           />
+
           <Field
             label="Location"
             value={settings.location}
             onChange={(v) => update("location", v)}
             placeholder="Lagos, Nigeria"
           />
+
           <NumberField
             label="Default delivery fee (NGN)"
             value={settings.deliveryFee}
             onChange={(n) => update("deliveryFee", n)}
+          />
+
+          <div className="h-px bg-white/10 my-2" />
+
+          <div>
+            <h2 className="text-lg font-bold font-serif">Payment Details</h2>
+            <p className="mt-1 text-sm muted">
+              Optional. If you set these, they’ll appear in the customer WhatsApp
+              message after checkout.
+            </p>
+          </div>
+
+          <Field
+            label="Bank name"
+            value={settings.bankName}
+            onChange={(v) => update("bankName", v)}
+            placeholder="e.g. Access Bank"
+          />
+
+          <Field
+            label="Account name"
+            value={settings.accountName}
+            onChange={(v) => update("accountName", v)}
+            placeholder="e.g. LA'KIDA Couture"
+          />
+
+          <Field
+            label="Account number"
+            value={settings.accountNumber}
+            onChange={(v) => update("accountNumber", v)}
+            placeholder="e.g. 0123456789"
           />
 
           <div className="grid sm:grid-cols-2 gap-3 pt-2">
@@ -123,7 +172,7 @@ export default function AdminSettingsPage() {
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110 disabled:opacity-60"
+              className="btn-primary py-4 text-sm hover:brightness-110 disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save Settings"}
             </button>
@@ -131,11 +180,15 @@ export default function AdminSettingsPage() {
             <button
               type="button"
               onClick={reset}
-              className="border border-[#f2d00d]/35 text-[#f2d00d] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-[#f2d00d]/10"
+              className="btn-outline py-4 text-sm hover:bg-white/10"
             >
               Reset
             </button>
           </div>
+
+          <p className="text-xs muted">
+            Tip: use WhatsApp number like <b>234810...</b> (no + sign, no spaces).
+          </p>
         </div>
       </div>
     </div>
@@ -155,15 +208,10 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
-      <input
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
+      <input className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
 }
@@ -179,12 +227,12 @@ function NumberField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
         type="number"
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+        className="input"
         value={Number.isFinite(value) ? value : 0}
         onChange={(e) => onChange(Number(e.target.value))}
       />

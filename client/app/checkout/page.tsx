@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import BrandLogo from "@/components/BrandLogo";
 import CustomerHeader from "@/components/CustomerHeader";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
@@ -141,7 +140,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -157,9 +156,7 @@ export default function CheckoutPage() {
         JSON.stringify({ orderId, orderCode, payload, createdAt: new Date().toISOString() })
       );
 
-      router.push(
-        `/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`
-      );
+      router.push(`/success?orderCode=${encodeURIComponent(orderCode)}&id=${encodeURIComponent(orderId)}`);
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Checkout failed" });
     } finally {
@@ -185,7 +182,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2 card p-6">
             <h2 className="text-xl font-bold font-serif">Customer Info</h2>
 
-            {mustLogin ? 
+            {mustLogin ? (
               <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                 Please login to place an order.
                 <div className="mt-3 flex flex-wrap gap-3">
@@ -197,7 +194,7 @@ export default function CheckoutPage() {
                   </Link>
                 </div>
               </div>
-             : null}
+            ) : null}
 
             <div className="mt-6 grid md:grid-cols-2 gap-4">
               <Field label="Full Name" value={fullName} onChange={setFullName} />
@@ -311,17 +308,6 @@ export default function CheckoutPage() {
         </div>
       </section>
     </main>
-  );
-}
-
-function Header() {
-  return (
-    <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
-      <BrandLogo size={54} />
-      <Link href="/cart" className="btn-outline px-5 py-2 text-xs hover:bg-white/10">
-        Cart
-      </Link>
-    </header>
   );
 }
 
