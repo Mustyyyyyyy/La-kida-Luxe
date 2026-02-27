@@ -34,12 +34,13 @@ export default async function HomePage() {
 
   const newArrivals = products.slice(0, 6);
 
-  const categories = [
-    { name: "Kaftans", href: "/shop?category=Kaftans", icon: "content_cut" },
-    { name: "Gowns", href: "/shop?category=Gowns", icon: "styler" },
-    { name: "Suits", href: "/shop?category=Suits", icon: "checkroom" },
-    { name: "Traditional", href: "/shop?category=Traditional", icon: "diamond" },
-  ];
+    const categories = [
+  { name: "Bridal wears", href: "/shop?category=Bridal%20wears", icon: "diamond" },
+  { name: "Aso ebi", href: "/shop?category=Aso%20ebi", icon: "styler" },
+  { name: "Corporate fits", href: "/shop?category=Corporate%20fits", icon: "checkroom" },
+  { name: "Casual wears", href: "/shop?category=Casual%20wears", icon: "apparel" },
+  { name: "Birthday dress", href: "/shop?category=Birthday%20dress", icon: "celebration" },
+];
 
   return (
     <main className="page">
