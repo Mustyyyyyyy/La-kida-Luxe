@@ -169,7 +169,7 @@ export default function CheckoutPage() {
 
   return (
     <main className="page">
-      <CustomerHeaderHeader />
+      <CustomerHeader />
 
       <section className="pt-24 pb-10 px-6 lg:px-20">
         <div className="max-w-[1200px] mx-auto">
