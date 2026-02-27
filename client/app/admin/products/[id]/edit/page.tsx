@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { apiFetchAuth, getApiUrl } from "@/lib/adminApi";
+import { useParams } from "next/navigation";
+import { apiFetchAuth } from "@/lib/adminApi";
 
 type Product = {
   _id: string;
@@ -17,6 +17,8 @@ type Product = {
   colors?: string[];
 };
 
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+
 function toList(v: string) {
   return v
     .split(",")
@@ -25,9 +27,9 @@ function toList(v: string) {
 }
 
 export default function AdminEditProductPage() {
-  const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
+  const params = useParams();
+  const rawId = (params as any)?.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId; 
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,15 +56,18 @@ export default function AdminEditProductPage() {
 
     async function load() {
       if (!id) return;
+
       try {
         setLoading(true);
         setErr("");
         setOk("");
 
-        const res = await fetch(`${getApiUrl()}/api/products/${id}`, { cache: "no-store" });
-        const data = (await res.json().catch(() => ({}))) as any;
+        const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
 
-        if (!res.ok) throw new Error(data?.message || "Failed to load product");
+        if (!res.ok) {
+          throw new Error(data?.message || `Failed to load product (${res.status})`);
+        }
 
         const p: Product = data;
 
@@ -113,7 +118,7 @@ export default function AdminEditProductPage() {
         colors: toList(colorsCsv),
       };
 
-      const updated = await apiFetchAuth<Product>(`/api/products/${id}`, {
+      await apiFetchAuth<Product>(`/api/products/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
@@ -144,18 +149,15 @@ export default function AdminEditProductPage() {
       ) : err ? (
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200">
           {err}
+          <div className="mt-2 text-xs text-white/60">
+            Debug: id = <b>{String(id)}</b>
+          </div>
         </div>
       ) : (
         <div className="card p-6 max-w-3xl">
           {ok ? (
             <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
               {ok}
-            </div>
-          ) : null}
-
-          {err ? (
-            <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
-              {err}
             </div>
           ) : null}
 
@@ -192,18 +194,8 @@ export default function AdminEditProductPage() {
           </div>
 
           <div className="mt-4 grid md:grid-cols-2 gap-4">
-            <Field
-              label="Sizes (comma separated)"
-              value={sizesCsv}
-              onChange={setSizesCsv}
-              placeholder="S, M, L, XL"
-            />
-            <Field
-              label="Colors (comma separated)"
-              value={colorsCsv}
-              onChange={setColorsCsv}
-              placeholder="Black, Purple, White"
-            />
+            <Field label="Sizes (comma separated)" value={sizesCsv} onChange={setSizesCsv} placeholder="S, M, L, XL" />
+            <Field label="Colors (comma separated)" value={colorsCsv} onChange={setColorsCsv} placeholder="Black, Purple, White" />
           </div>
 
           <div className="mt-5 flex items-center gap-3">
@@ -232,7 +224,6 @@ export default function AdminEditProductPage() {
               Cancel
             </Link>
           </div>
-
         </div>
       )}
     </div>
