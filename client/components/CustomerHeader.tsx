@@ -47,19 +47,18 @@ export default function CustomerHeader() {
       <div className="flex items-center justify-between gap-3">
         <BrandLogo size={44} showText={true} />
 
-        {/* ✅ Right side: dashboard visible (logged in) + menu */}
         <div className="flex items-center gap-2">
           {loggedIn ? (
-            <Link
-              href="/dashboard"
-              className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
-              aria-label="Dashboard"
-              title="Dashboard"
-            >
-              <span className="material-symbols-outlined text-base">grid_view</span>
-              <span className="ml-2 hidden sm:inline">Dashboard</span>
-            </Link>
-          ) : null}
+  <Link
+    href="/dashboard"
+    className="btn-outline px-3 py-2 sm:px-4 sm:py-2 text-xs hover:bg-white/10 inline-flex items-center"
+    aria-label="Dashboard"
+    title="Dashboard"
+  >
+    <span className="material-symbols-outlined text-base">grid_view</span>
+    <span className="ml-2 hidden sm:inline">Dashboard</span>
+  </Link>
+) : null}
 
           <button
             className="md:hidden btn-outline px-3 py-2"
@@ -73,7 +72,6 @@ export default function CustomerHeader() {
           </button>
         </div>
 
-        {/* Desktop links */}
         <nav className="hidden md:flex items-center gap-3">
           {(loggedIn ? linksLoggedIn : linksLoggedOut).map((l) => (
             <Link
@@ -107,7 +105,6 @@ export default function CustomerHeader() {
         </nav>
       </div>
 
-      {/* Mobile menu */}
       {open ? (
         <div className="md:hidden mt-3 card p-3">
           <div className="grid gap-2">
