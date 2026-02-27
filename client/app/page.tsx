@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getProducts } from "@/lib/api";
 import BrandLogo from "@/components/BrandLogo";
+import AuthLink from "@/components/AuthLink";
 
 type Product = {
   _id: string;
@@ -68,18 +69,21 @@ export default async function HomePage() {
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Link
+            <AuthLink
               href="/shop"
+              requireAuth
               className="btn-primary px-10 py-4 text-lg hover:brightness-110"
             >
               Shop Now
-            </Link>
-            <Link
+            </AuthLink>
+
+            <AuthLink
               href="/custom-order"
+              requireAuth
               className="btn-outline px-10 py-4 text-lg hover:bg-white/10"
             >
               Request Custom Designs.
-            </Link>
+            </AuthLink>
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm">
@@ -111,16 +115,18 @@ export default async function HomePage() {
                 Shop by Category
               </h2>
             </div>
-            <Link href="/shop" className="text-sm font-medium text-[color:var(--accent)] hover:underline">
+
+            <AuthLink href="/shop" requireAuth className="text-sm font-medium text-[color:var(--accent)] hover:underline">
               View all →
-            </Link>
+            </AuthLink>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {categories.map((c) => (
-              <Link
+              <AuthLink
                 key={c.name}
                 href={c.href}
+                requireAuth
                 className="group card p-6 hover:bg-white/10 transition"
               >
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--accent)] mb-4">
@@ -128,7 +134,7 @@ export default async function HomePage() {
                 </div>
                 <h3 className="text-lg font-bold font-serif">{c.name}</h3>
                 <p className="text-sm muted mt-1">View pieces →</p>
-              </Link>
+              </AuthLink>
             ))}
           </div>
         </div>
@@ -145,9 +151,10 @@ export default async function HomePage() {
                 Signature Pieces
               </h2>
             </div>
-            <Link href="/shop" className="text-sm font-medium text-[color:var(--accent)] hover:underline">
+
+            <AuthLink href="/shop" requireAuth className="text-sm font-medium text-[color:var(--accent)] hover:underline">
               View all →
-            </Link>
+            </AuthLink>
           </div>
 
           {newArrivals.length === 0 ? (
@@ -164,9 +171,10 @@ export default async function HomePage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {newArrivals.map((p) => (
-                <Link
+                <AuthLink
                   key={p._id}
                   href={`/product/${p._id}`}
+                  requireAuth
                   className="group card p-0 overflow-hidden hover:shadow-xl transition"
                 >
                   <div className="relative aspect-[3/4] bg-slate-200 dark:bg-slate-800 overflow-hidden">
@@ -190,7 +198,7 @@ export default async function HomePage() {
                     </p>
                     <p className="mt-2 text-sm muted">{p.category || "General"}</p>
                   </div>
-                </Link>
+                </AuthLink>
               ))}
             </div>
           )}

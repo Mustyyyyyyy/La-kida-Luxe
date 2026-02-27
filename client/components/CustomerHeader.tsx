@@ -5,15 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 
-function getUser() {
-  try {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
 function isLoggedIn() {
   return !!localStorage.getItem("token");
 }
@@ -44,7 +35,9 @@ export default function CustomerHeader() {
     { label: "Register", href: "/register" },
   ];
 
+  // ✅ added Dashboard
   const linksLoggedIn = [
+    { label: "Dashboard", href: "/dashboard" },
     { label: "Shop", href: "/shop" },
     { label: "Orders", href: "/orders" },
     { label: "Cart", href: "/cart" },
@@ -57,7 +50,11 @@ export default function CustomerHeader() {
 
         <nav className="hidden md:flex items-center gap-3">
           {(loggedIn ? linksLoggedIn : linksLoggedOut).map((l) => (
-            <Link key={l.href} href={l.href} className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+            <Link
+              key={l.href}
+              href={l.href}
+              className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
+            >
               {l.label}
             </Link>
           ))}
@@ -73,7 +70,10 @@ export default function CustomerHeader() {
               Logout
             </button>
           ) : (
-            <Link href="/shop" className="btn-primary px-4 py-2 text-xs hover:brightness-110">
+            <Link
+              href="/shop"
+              className="btn-primary px-4 py-2 text-xs hover:brightness-110"
+            >
               Shop Now
             </Link>
           )}
@@ -112,7 +112,10 @@ export default function CustomerHeader() {
                 Logout
               </button>
             ) : (
-              <Link href="/shop" className="btn-primary px-4 py-3 text-sm hover:brightness-110 text-center">
+              <Link
+                href="/shop"
+                className="btn-primary px-4 py-3 text-sm hover:brightness-110 text-center"
+              >
                 Shop Now
               </Link>
             )}

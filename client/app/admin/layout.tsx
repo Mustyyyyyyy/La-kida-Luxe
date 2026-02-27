@@ -67,14 +67,30 @@ function AdminShell({ children }: { children: ReactNode }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/" className="hidden sm:inline-flex btn-outline px-4 py-2 text-xs hover:bg-white/10">
+          <Link
+            href="/admin"
+            className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
+            aria-label="Admin Dashboard"
+            title="Admin Dashboard"
+          >
+            <span className="material-symbols-outlined text-base">grid_view</span>
+            <span className="ml-2 hidden sm:inline">Dashboard</span>
+          </Link>
+
+          <Link
+            href="/"
+            className="hidden sm:inline-flex btn-outline px-4 py-2 text-xs hover:bg-white/10"
+          >
             <span className="material-symbols-outlined text-base">home</span>
             <span className="ml-2">View site</span>
           </Link>
 
-          <button onClick={doLogout} className="btn-primary px-4 py-2 text-xs hover:brightness-110">
+          <button
+            onClick={doLogout}
+            className="btn-primary px-4 py-2 text-xs hover:brightness-110"
+          >
             <span className="material-symbols-outlined text-base">logout</span>
-            <span className="ml-2">Logout</span>
+            <span className="ml-2 hidden sm:inline">Logout</span>
           </button>
         </div>
       </header>
@@ -109,7 +125,10 @@ function AdminShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="mt-auto p-4 border-t border-white/10">
-            <button onClick={doLogout} className="w-full btn-outline py-2.5 text-xs hover:bg-white/10">
+            <button
+              onClick={doLogout}
+              className="w-full btn-outline py-2.5 text-xs hover:bg-white/10"
+            >
               Logout
             </button>
           </div>
@@ -117,13 +136,25 @@ function AdminShell({ children }: { children: ReactNode }) {
 
         {open ? (
           <div className="lg:hidden fixed inset-0 z-50">
-            <div className="absolute inset-0 bg-black/60" onClick={() => setOpen(false)} />
+            <div
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setOpen(false)}
+            />
             <div className="absolute left-0 top-0 h-full w-[85%] max-w-sm bg-[#120018] border-r border-white/10 p-4">
               <div className="flex items-center justify-between">
                 <BrandLogo size={44} />
-                <button className="btn-outline px-3 py-2" onClick={() => setOpen(false)} aria-label="Close menu">
+                <button
+                  className="btn-outline px-3 py-2"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                  type="button"
+                >
                   <span className="material-symbols-outlined">close</span>
                 </button>
+              </div>
+
+              <div className="mt-3 text-sm text-white/70">
+                {user?.fullName || "Admin"} {user?.email ? `• ${user.email}` : ""}
               </div>
 
               <nav className="mt-6 space-y-1">
@@ -131,6 +162,7 @@ function AdminShell({ children }: { children: ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={() => setOpen(false)} 
                     className={[
                       "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition",
                       isActive(item.href)
@@ -142,9 +174,21 @@ function AdminShell({ children }: { children: ReactNode }) {
                     <span>{item.label}</span>
                   </Link>
                 ))}
+
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white/80 hover:bg-white/10"
+                >
+                  <span className="material-symbols-outlined">home</span>
+                  <span>View site</span>
+                </Link>
               </nav>
 
-              <button onClick={doLogout} className="mt-6 w-full btn-primary py-3 text-xs hover:brightness-110">
+              <button
+                onClick={doLogout}
+                className="mt-6 w-full btn-primary py-3 text-xs hover:brightness-110"
+              >
                 Logout
               </button>
             </div>
