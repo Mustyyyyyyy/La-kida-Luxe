@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getProducts } from "@/lib/api";
-import BrandLogo from "@/components/BrandLogo";
 import CustomerHeader from "@/components/CustomerHeader";
 
 type Product = {
@@ -38,6 +37,11 @@ function formatNaira(amount: number) {
 
 function pickImage(p: Product) {
   return p.images?.[0]?.url || "/placeholder-1.jpg";
+}
+
+function isOutOfStock(p: Product) {
+  const qty = Number(p.stockQty ?? 0);
+  return p.inStock === false || qty <= 0;
 }
 
 function loadCart(): CartItem[] {
@@ -217,57 +221,83 @@ export default function ShopPage() {
             </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-7">
-              {filtered.map((p) => (
-                <div key={p._id} className="card overflow-hidden hover:shadow-2xl transition">
-                  <Link href={`/product/${p._id}`} className="block">
-                    <div className="relative aspect-[3/4] overflow-hidden bg-black/20">
-                      <Image
-                        src={pickImage(p)}
-                        alt={p.title}
-                        fill
-                        className="object-cover transition-transform duration-700 hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="bg-white text-[#221f10] py-2 rounded-lg font-bold uppercase text-xs tracking-widest text-center">
-                          View Details
+              {filtered.map((p) => {
+                const out = isOutOfStock(p);
+
+                return (
+                  <div key={p._id} className="card overflow-hidden hover:shadow-2xl transition">
+                    <Link href={`/product/${p._id}`} className="block">
+                      <div className="relative aspect-[3/4] overflow-hidden bg-black/20">
+                        <Image
+                          src={pickImage(p)}
+                          alt={p.title}
+                          fill
+                          className="object-cover transition-transform duration-700 hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <div className="bg-white text-[#221f10] py-2 rounded-lg font-bold uppercase text-xs tracking-widest text-center">
+                            View Details
+                          </div>
                         </div>
+
+                        {/* badge */}
+                        {out ? (
+                          <div className="absolute top-3 left-3">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold border border-red-500/30 bg-red-500/15 text-red-200">
+                              Out of stock
+                            </span>
+                          </div>
+                        ) : null}
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
 
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-bold font-serif leading-snug">{p.title}</h3>
-                        <p className="mt-1 text-sm muted2">{p.category || "General"}</p>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-bold font-serif leading-snug">{p.title}</h3>
+                          <p className="mt-1 text-sm muted2">{p.category || "General"}</p>
+                        </div>
+                        <p className="text-[color:var(--accent)] font-bold">
+                          {formatNaira(p.price)}
+                        </p>
                       </div>
-                      <p className="text-[color:var(--accent)] font-bold">
-                        {formatNaira(p.price)}
-                      </p>
-                    </div>
 
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => {
-                          addToCart(p);
-                          showToast("Added to cart");
-                        }}
-                        className="btn-primary py-3 text-[11px] hover:brightness-110"
-                      >
-                        Add to Cart
-                      </button>
-                      <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center hover:bg-white/10">
-                        Details
-                      </Link>
-                    </div>
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        {out ? (
+                          <Link
+                            href={`/product/${p._id}#notify`}
+                            className="btn-outline py-3 text-[11px] text-center hover:bg-white/10"
+                          >
+                            Notify me
+                          </Link>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              addToCart(p);
+                              showToast("Added to cart");
+                            }}
+                            className="btn-primary py-3 text-[11px] hover:brightness-110"
+                          >
+                            Add to Cart
+                          </button>
+                        )}
 
-                    <div className="mt-3 text-xs muted2">
-                      {p.inStock === false ? "Out of stock" : "Available"}
+                        <Link
+                          href={`/product/${p._id}`}
+                          className="btn-outline py-3 text-[11px] text-center hover:bg-white/10"
+                        >
+                          Details
+                        </Link>
+                      </div>
+
+                      <div className="mt-3 text-xs muted2">
+                        {out ? "Out of stock" : "Available"}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -281,44 +311,5 @@ export default function ShopPage() {
         </div>
       ) : null}
     </main>
-  );
-}
-
-function Header() {
-  return (
-    <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
-      <div className="flex items-center gap-12">
-        <BrandLogo size={54} />
-
-        <nav className="hidden md:flex items-center gap-8">
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/shop">
-            Shop
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/custom-order">
-            Custom Designs
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/about">
-            About
-          </Link>
-          <Link className="text-sm font-medium hover:text-[color:var(--accent)]" href="/contact">
-            Contact
-          </Link>
-        </nav>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Link
-          href="/cart"
-          className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-white/15 text-white/90 hover:bg-white/10"
-          aria-label="Cart"
-        >
-          <span className="material-symbols-outlined">shopping_bag</span>
-        </Link>
-
-        <Link href="/login" className="btn-outline px-5 py-2 text-xs hover:bg-white/10">
-          Login
-        </Link>
-      </div>
-    </header>
   );
 }
