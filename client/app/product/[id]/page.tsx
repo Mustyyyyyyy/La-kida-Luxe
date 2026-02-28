@@ -320,12 +320,12 @@ export default function ProductDetailsPage() {
 
                     <Link
                       href="/custom-order"
-                      className="btn-primary w-full py-4 text-sm hover:brightness-110 text-center"
+                      className="btn-primary w-full py-4 text-sm hover:brightness-110 text-center mt-3"
                     >
                       Request Custom
                     </Link>
 
-                    <p className="text-xs muted2">
+                    <p className="text-xs muted2 mt-5">
                       We’ll email you when this item is available again.
                     </p>
                   </div>

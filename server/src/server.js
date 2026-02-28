@@ -11,6 +11,7 @@ const contactRoutes = require("./routes/contact.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const profileRoutes = require("./routes/profile.routes");
 const StockAlertRoutes = require("./routes/stockAlert.routes")
+const testMailRoutes = require("./routes/testMail.routes")
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/me", profileRoutes);
 app.use("/api/stock-alerts", StockAlertRoutes)
+app.use("/api/test-mail", testMailRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
