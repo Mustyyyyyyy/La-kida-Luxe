@@ -11,7 +11,7 @@ const contactRoutes = require("./routes/contact.routes");
 const newsletterRoutes = require("./routes/newsletter.routes");
 const profileRoutes = require("./routes/profile.routes");
 const StockAlertRoutes = require("./routes/stockAlert.routes")
-const testMailRoutes = require("./routes/testMail.routes")
+const testMailRoutes = require("./routes/test-mail.routes")
 
 const app = express();
 
