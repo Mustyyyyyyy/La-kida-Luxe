@@ -6,33 +6,31 @@ function requireEnv(name) {
   return v;
 }
 
-const SMTP_HOST = requireEnv("SMTP_HOST");
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_USER = requireEnv("SMTP_USER");
-const SMTP_PASS = requireEnv("SMTP_PASS");
+const host = requireEnv("SMTP_HOST");
+const port = Number(process.env.SMTP_PORT || 587);
+
+const secure = port === 465;
 
 const transporter = nodemailer.createTransport({
-  host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: SMTP_PORT === 465,
+  host,
+  port,
+  secure,
   auth: {
-    user: SMTP_USER,
-    pass: SMTP_PASS,
+    user: requireEnv("SMTP_USER"),
+    pass: requireEnv("SMTP_PASS"),
   },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
 });
 
-async function sendMail({ to, subject, html, text, replyTo }) {
-  const FROM =
-    process.env.MAIL_FROM || process.env.EMAIL_FROM || SMTP_USER; 
-  const REPLY_TO = replyTo || process.env.MAIL_REPLY_TO || undefined;
-
+async function sendMail({ to, subject, html, text }) {
   return transporter.sendMail({
-    from: FROM,             
+    from: process.env.EMAIL_FROM || process.env.SMTP_USER,
     to,
     subject,
     text,
     html,
-    ...(REPLY_TO ? { replyTo: REPLY_TO } : {}),
   });
 }
 

@@ -48,6 +48,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/me", profileRoutes);
 app.use("/api/stock-alerts", StockAlertRoutes)
 app.use("/api/test-mail", testMailRoutes)
+app.use("/api", testMailRoutes)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on ${PORT}`));
