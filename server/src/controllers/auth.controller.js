@@ -4,11 +4,17 @@ const User = require("../models/User");
 
 function signToken(user) {
   return jwt.sign(
-    { id: user._id, role: user.role },
+    {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+      fullName: user.fullName,
+    },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 }
+
 
 exports.register = async (req, res) => {
   try {
