@@ -17,93 +17,110 @@ h3,
   font-family: var(--font-display);
 }
 
-:root {
-  --bg: #E9D5FF;
-  --bg2: #D8B4FE;
+@import "tailwindcss";
 
-  --accent: #4C1D95;
-  --accent2: #6D28D9;
+html, body { height: 100%; }
 
-  --text: rgba(26, 8, 61, 0.92);
-  --muted: rgba(26, 8, 61, 0.70);
+:root{
+  --bg: #E9D5FF;           /* lilac */
+  --bg2: #D8B4FE;          /* lilac 2 */
+  --accent: #2b0046;       /* deep purple */
+  --accent2: #4C1D95;
 
-  --border: rgba(76, 29, 149, 0.18);
+  --pageText: #2b0046;     /* OUTSIDE text */
+  --cardBg: rgba(43,0,70,0.22);  /* old glass look */
+  --cardText: rgba(255,255,255,0.95); /* INSIDE cards */
+  --border: rgba(43,0,70,0.22);
 }
 
-.page {
+body{
+  font-family: var(--font-sans);
+  @apply antialiased;
+}
+
+/* PAGE */
+.page{
   background: linear-gradient(180deg, var(--bg), var(--bg2));
-  color: var(--text);
+  color: var(--pageText);        /* ✅ outside text purple */
   min-height: 100vh;
 }
 
-.topbar {
-  background: rgba(233, 213, 255, 0.75);
+/* TOPBAR */
+.topbar{
+  background: rgba(233, 213, 255, 0.78);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(10px);
 }
 
-.card {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid var(--border);
+/* CARD (old style) */
+.card{
+  background: var(--cardBg);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 16px;
+  color: var(--cardText);        /* ✅ inside text white */
 }
 
-.btn-primary {
+/* BUTTONS */
+.btn-primary{
   background: var(--accent);
-  color: white;
+  color: #fff;
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+.btn-primary:hover{ background: var(--accent2); }
 
-.btn-primary:hover {
-  background: var(--accent2);
-}
-
-.btn-outline {
-  border: 1px solid rgba(76, 29, 149, 0.45);
+.btn-outline{
+  border: 2px solid rgba(43,0,70,0.45);
   color: var(--accent);
   border-radius: 12px;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255,255,255,0.65);
 }
+.btn-outline:hover{ background: rgba(255,255,255,0.80); }
 
-.btn-outline:hover {
-  background: rgba(255, 255, 255, 0.55);
-}
-
-.input {
+/* INPUT */
+.input{
   width: 100%;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(76, 29, 149, 0.28);
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(43,0,70,0.25);
   border-radius: 12px;
   padding: 12px 14px;
-  color: rgba(26, 8, 61, 0.92);
+  color: rgba(43,0,70,0.92);
+  font-weight: 700;
 }
 
-.input::placeholder {
-  color: rgba(26, 8, 61, 0.55);
-}
+.muted{ color: rgba(43,0,70,0.70); }
+.muted2{ color: rgba(43,0,70,0.60); }
 
-.muted {
-  color: var(--muted);
-}
-
-.muted2 {
-  color: rgba(26, 8, 61, 0.55);
-}
-
-.badge {
+.badge{
   display: inline-flex;
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
-  background: rgba(233, 213, 255, 0.65);
-  border: 1px solid rgba(76, 29, 149, 0.25);
-  color: var(--accent);
+  font-weight: 900;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+}
+
+.card,
+.card *{
+  color: rgba(255,255,255,0.95) !important;
+  font-weight: 800 !important;
+}
+
+.card input,
+.card textarea,
+.card select,
+.card option{
+  color: rgba(43,0,70,0.92) !important;
+  font-weight: 700 !important;
+}
+.card h1, .card h2, .card h3{
+  font-weight: 900 !important;
 }
