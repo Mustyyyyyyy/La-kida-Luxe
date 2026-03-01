@@ -80,18 +80,7 @@ body{
   text-transform: uppercase;
   background: rgba(255,255,255,0.65);
 }
-.btn-outline:hover{ background: rgba(255,255,255,0.80); }
-
-/* INPUT */
-.input{
-  width: 100%;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(43,0,70,0.25);
-  border-radius: 12px;
-  padding: 12px 14px;
-  color: rgba(43,0,70,0.92);
-  font-weight: 700;
-}
+.btn-outline:hover{ background: rgba(123, 71, 219, 0.8); }
 
 .muted{ color: rgba(43,0,70,0.70); }
 .muted2{ color: rgba(43,0,70,0.60); }
@@ -129,4 +118,17 @@ body{
   background: rgba(43, 0, 70, 0.75);
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 16px;
+
+
+.input{
+  width: 100%;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: rgba(255,255,255,0.95);
 }
+
+.input::placeholder{
+  color: rgba(255,255,255,0.55);
+}}

@@ -153,7 +153,7 @@ export default function LoginPage() {
               </p>
               <p className="text-sm muted">
                 <Link href="/policies" className="text-[color:var(--accent)] font-bold hover:underline">
-                  Terma and Privacy
+                  Terms & Privacy
                 </Link>
               </p>
 
