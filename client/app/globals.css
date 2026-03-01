@@ -124,3 +124,9 @@ body{
 .card h1, .card h2, .card h3{
   font-weight: 900 !important;
 }
+
+.card{
+  background: rgba(43, 0, 70, 0.75);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
+}
