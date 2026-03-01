@@ -2,14 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const BG =
   "https://plus.unsplash.com/premium_vector-1723626228433-74323eb5b9ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D";
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginSkeleton />}>
+      <LoginInner />
+    </Suspense>
+  );
+}
 
 function safeNext(next: string | null) {
   if (!next) return "";
@@ -18,7 +26,7 @@ function safeNext(next: string | null) {
   return next;
 }
 
-export default function LoginPage() {
+function LoginInner() {
   const router = useRouter();
   const sp = useSearchParams();
 
@@ -28,9 +36,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
-    null
-  );
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,8 +60,7 @@ export default function LoginPage() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        const text =
-          data?.message || data?.errors?.[0]?.message || "Login failed.";
+        const text = data?.message || data?.errors?.[0]?.message || "Login failed.";
         setMsg({ type: "err", text });
         return;
       }
@@ -96,18 +101,6 @@ export default function LoginPage() {
             <p className="mt-4 text-white/80 text-lg">
               Login to shop, track requests, and get support for custom order.
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-3 text-sm">
-              <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-                Premium finishing
-              </span>
-              <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-                Bespoke tailoring
-              </span>
-              <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
-                Delivery available
-              </span>
-            </div>
           </div>
 
           <p className="text-white/50 text-xs tracking-[0.2em] uppercase">
@@ -144,11 +137,7 @@ export default function LoginPage() {
                 disabled={loading}
               />
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-4 text-sm disabled:opacity-60"
-              >
+              <button type="submit" disabled={loading} className="btn-primary w-full py-4 text-sm disabled:opacity-60">
                 {loading ? "Logging in..." : "Login"}
               </button>
 
@@ -175,10 +164,7 @@ export default function LoginPage() {
               </p>
 
               <p className="text-sm muted">
-                <Link
-                  href="/policies"
-                  className="text-[color:var(--accent)] font-bold hover:underline"
-                >
+                <Link href="/policies" className="text-[color:var(--accent)] font-bold hover:underline">
                   Terms and Privacy
                 </Link>
               </p>
@@ -186,6 +172,14 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
+    </main>
+  );
+}
+
+function LoginSkeleton() {
+  return (
+    <main className="min-h-screen page flex items-center justify-center px-6">
+      <div className="card p-8 w-full max-w-md text-center muted">Loading…</div>
     </main>
   );
 }

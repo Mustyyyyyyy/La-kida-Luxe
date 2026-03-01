@@ -19,13 +19,9 @@ const serif = Noto_Serif({
 export const metadata: Metadata = {
   title: {
     default: "LK",
-    template: "%s • LK",
+    template: "%s • LA'Kida",
   },
   description: "High-end African fashion. Ready-to-wear and bespoke tailoring.",
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
 };
 
 export default function RootLayout({
