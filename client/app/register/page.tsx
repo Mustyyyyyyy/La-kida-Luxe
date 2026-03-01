@@ -8,7 +8,7 @@ import BrandLogo from "@/components/BrandLogo";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const BG =
-  "https://images.unsplash.com/photo-1520975958225-2f8b39f0f3e5?auto=format&fit=crop&w=1600&q=80";
+  "https://plus.unsplash.com/premium_vector-1723626228433-74323eb5b9ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D";
 
 export default function RegisterPage() {
   const router = useRouter();

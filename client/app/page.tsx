@@ -3,6 +3,7 @@ import Image from "next/image";
 import { getProducts } from "@/lib/api";
 import BrandLogo from "@/components/BrandLogo";
 import AuthLink from "@/components/AuthLink";
+import * as React from "react";
 
 type Product = {
   _id: string;
@@ -23,6 +24,9 @@ function formatNaira(amount: number) {
 function pickImage(p: Product) {
   return p.images?.[0]?.url || "/placeholder-1.jpg";
 }
+
+const DP = "text-[#2b0046]";
+const DP_MUTED = "text-[rgba(43,0,70,0.75)]";
 
 export default async function HomePage() {
   let products: Product[] = [];
@@ -48,7 +52,7 @@ export default async function HomePage() {
 
       <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-black/45 z-10" />
+          <div className="absolute inset-0 bg-white/65 z-10" />
           <div className="absolute inset-0">
             <Image
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOO59_EHre-MkrNUXU0f4HahP1eW2UERAfZswRyTHdj0jh_WYDCuYjqAhWixHmMBmvp8ZZd5Mk49hCenMdQqp6e5vFV0mM5Og9w0mj3aQRmLjccxA5Tzs8t2AQLC_3WMI9mccIh-5NgoVJosgJdD-6dPq9IaUc0oI_CTzrrqYbTwynHO_l6kFC3ID0z7lGJJnbMjjFIMC9pmEfsExZh51hDfNuzLxO8epnoCNXZRYEIe9SdtmUJ3mLKuxpLG7WLu10T5DoYqTAsM"
@@ -61,10 +65,11 @@ export default async function HomePage() {
         </div>
 
         <div className="relative z-20 text-center px-4 max-w-4xl">
-          <h1 className="text-5xl md:text-8xl font-bold text-white mb-6 tracking-tight">
+          <h1 className={`text-6xl md:text-9xl font-bold mb-6 tracking-tight ${DP}`}>
             LA&apos;KIDA
           </h1>
-          <p className="text-xl md:text-2xl text-[color:var(--accent)] italic mb-10 font-serif">
+
+          <p className={`text-2xl md:text-3xl italic mb-10 font-serif ${DP}`}>
             Designed to be Unusually Classy.
           </p>
 
@@ -72,7 +77,7 @@ export default async function HomePage() {
             <AuthLink
               href="/shop"
               requireAuth
-              className="btn-primary px-10 py-4 text-lg hover:brightness-110"
+              className="btn-primary px-10 py-4 text-xl hover:brightness-110"
             >
               Shop Now
             </AuthLink>
@@ -80,27 +85,27 @@ export default async function HomePage() {
             <AuthLink
               href="/custom-order"
               requireAuth
-              className="btn-outline px-10 py-4 text-lg hover:bg-white/10"
+              className="btn-outline px-10 py-4 text-xl hover:bg-white/10"
             >
               Request Custom Designs.
             </AuthLink>
           </div>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
+          <div className="mt-10 flex flex-wrap justify-center gap-3 text-base">
+            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
               Perfect Fit
             </span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
+            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
               Premium Fabrics
             </span>
-            <span className="px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white">
+            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
               Delivery Available
             </span>
           </div>
         </div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce text-white/90">
-          <span className="material-symbols-outlined text-4xl">expand_more</span>
+        <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce ${DP}`}>
+          <span className="material-symbols-outlined text-5xl">expand_more</span>
         </div>
       </section>
 
@@ -108,15 +113,19 @@ export default async function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
+              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>
                 Explore
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold mt-2 font-serif">
+              <h2 className={`text-4xl md:text-5xl font-bold mt-2 font-serif ${DP}`}>
                 Shop by Category
               </h2>
             </div>
 
-            <AuthLink href="/shop" requireAuth className="text-sm font-medium text-[color:var(--accent)] hover:underline">
+            <AuthLink
+              href="/shop"
+              requireAuth
+              className={`text-base font-semibold hover:underline ${DP}`}
+            >
               View all →
             </AuthLink>
           </div>
@@ -129,11 +138,11 @@ export default async function HomePage() {
                 requireAuth
                 className="group card p-6 hover:bg-white/10 transition"
               >
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-[color:var(--accent)] mb-4">
+                <div className={`w-12 h-12 rounded-full bg-white/30 flex items-center justify-center mb-4 ${DP}`}>
                   <span className="material-symbols-outlined">{c.icon}</span>
                 </div>
-                <h3 className="text-lg font-bold font-serif">{c.name}</h3>
-                <p className="text-sm muted mt-1">View pieces →</p>
+                <h3 className={`text-xl font-bold font-serif ${DP}`}>{c.name}</h3>
+                <p className={`text-base mt-1 ${DP_MUTED}`}>View pieces →</p>
               </AuthLink>
             ))}
           </div>
@@ -144,29 +153,31 @@ export default async function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className="text-[color:var(--accent)] font-bold tracking-widest uppercase text-sm">
+              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>
                 New Arrivals
               </span>
-              <h2 className="text-3xl md:text-5xl font-bold mt-2 font-serif">
+              <h2 className={`text-4xl md:text-6xl font-bold mt-2 font-serif ${DP}`}>
                 Signature Pieces
               </h2>
             </div>
 
-            <AuthLink href="/shop" requireAuth className="text-sm font-medium text-[color:var(--accent)] hover:underline">
+            <AuthLink
+              href="/shop"
+              requireAuth
+              className={`text-base font-semibold hover:underline ${DP}`}
+            >
               View all →
             </AuthLink>
           </div>
 
           {newArrivals.length === 0 ? (
             <div className="card p-10 text-center">
-              <p className="muted">
-                No products yet. Add products from the admin panel and they’ll show here.
+              <p className={`text-lg font-semibold ${DP}`}>
+                No products yet.
               </p>
-              <div className="mt-4">
-                <Link href="/admin" className="btn-primary px-6 py-3 hover:brightness-110 inline-flex">
-                  Go to Admin
-                </Link>
-              </div>
+              <p className={`mt-2 ${DP_MUTED}`}>
+                Once the admin adds products, they will appear here automatically.
+              </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -184,19 +195,19 @@ export default async function HomePage() {
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
-                      <span className="w-full bg-white text-[#221f10] py-3 rounded-lg font-bold uppercase text-sm tracking-widest text-center">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-5">
+                      <span className="w-full bg-white text-[#2b0046] py-3 rounded-lg font-bold uppercase text-sm tracking-widest text-center">
                         View Details
                       </span>
                     </div>
                   </div>
 
                   <div className="p-5">
-                    <h3 className="text-xl font-bold font-serif">{p.title}</h3>
-                    <p className="mt-1 text-[color:var(--accent)] font-semibold">
+                    <h3 className={`text-2xl font-bold font-serif ${DP}`}>{p.title}</h3>
+                    <p className={`mt-1 font-semibold text-lg ${DP}`}>
                       {formatNaira(p.price)}
                     </p>
-                    <p className="mt-2 text-sm muted">{p.category || "General"}</p>
+                    <p className={`mt-2 text-base ${DP_MUTED}`}>{p.category || "General"}</p>
                   </div>
                 </AuthLink>
               ))}
@@ -210,52 +221,114 @@ export default async function HomePage() {
   );
 }
 
-
 function Header() {
   return (
     <header className="fixed top-0 w-full z-50 topbar px-6 lg:px-20 py-4 flex items-center justify-between">
       <BrandLogo size={54} />
-
-      <div className="relative">
-        <details className="group">
-          <summary className="list-none cursor-pointer btn-outline px-3 py-2">
-            <span className="material-symbols-outlined">menu</span>
-          </summary>
-
-          <div className="absolute right-0 mt-3 w-56 card p-2 border border-white/10">
-            <Link href="/login" className="block px-4 py-3 rounded-lg hover:bg-white/10 font-semibold">
-              Login
-            </Link>
-            <Link href="/register" className="block px-4 py-3 rounded-lg hover:bg-white/10 font-semibold">
-              Register
-            </Link>
-
-            <div className="h-px bg-white/10 my-2" />
-
-            <Link href="/shop" className="block px-4 py-3 rounded-lg hover:bg-white/10">
-              Shop
-            </Link>
-            <Link href="/custom-order" className="block px-4 py-3 rounded-lg hover:bg-white/10">
-              Custom Order
-            </Link>
-            <Link href="/contact" className="block px-4 py-3 rounded-lg hover:bg-white/10">
-              Contact
-            </Link>
-          </div>
-        </details>
-      </div>
+      <HeaderMenu />
     </header>
   );
 }
 
+function HeaderMenu() {
+  "use client";
+
+  const [open, setOpen] = React.useState(false);
+  const [loggedIn, setLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    setLoggedIn(!!localStorage.getItem("token"));
+  }, []);
+
+  function close() {
+    setOpen(false);
+  }
+
+  function doLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setLoggedIn(false);
+    close();
+    window.location.href = "/login";
+  }
+
+  const linksLoggedOut = [
+    { label: "Login", href: "/login" },
+    { label: "Register", href: "/register" },
+  ];
+
+  const linksLoggedIn = [
+    { label: "Shop", href: "/shop" },
+    { label: "Orders", href: "/orders" },
+    { label: "Cart", href: "/cart" },
+  ];
+
+  return (
+    <div className="relative">
+      <button
+        className="btn-outline px-3 py-2"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Open menu"
+        type="button"
+      >
+        <span className="material-symbols-outlined">{open ? "close" : "menu"}</span>
+      </button>
+
+      {open ? (
+        <>
+          <button
+            className="fixed inset-0 z-40 bg-black/20"
+            onClick={close}
+            aria-label="Close menu"
+            type="button"
+          />
+          <div className="absolute right-0 mt-3 w-60 z-50 card p-2 border border-white/10">
+            {(loggedIn ? linksLoggedIn : linksLoggedOut).map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={close as any}
+                className={`block px-4 py-3 rounded-lg hover:bg-white/10 font-bold text-base ${DP}`}
+              >
+                {l.label}
+              </Link>
+            ))}
+
+            <div className="h-px bg-white/10 my-2" />
+
+            {!loggedIn ? (
+              <>
+                <Link
+                  href="/contact"
+                  onClick={close as any}
+                  className={`block px-4 py-3 rounded-lg hover:bg-white/10 font-semibold ${DP}`}
+                >
+                  Contact
+                </Link>
+              </>
+            ) : (
+              <button
+                onClick={doLogout}
+                className={`w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 font-bold text-red-600`}
+                type="button"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
 
 function Footer() {
   return (
-    <footer className="mt-10 border-t border-white/10 bg-[rgba(18,0,24,0.55)] px-6 lg:px-20 py-12">
+    <footer className="mt-10 border-t border-white/10 bg-[rgba(18,0,24,0.10)] px-6 lg:px-20 py-12">
       <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <BrandLogo size={54} />
-        <p className="muted text-sm">
-          © {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.
+        <p className={`text-sm font-semibold ${DP_MUTED}`}>
+          ©️ {new Date().getFullYear()} LA&apos;KIDA. ALL RIGHTS RESERVED.
         </p>
       </div>
     </footer>

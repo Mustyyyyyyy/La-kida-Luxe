@@ -2,17 +2,27 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const BG =
-  "https://images.unsplash.com/photo-1520975958225-2f8b39f0f3e5?auto=format&fit=crop&w=1600&q=80";
+  "https://plus.unsplash.com/premium_vector-1723626228433-74323eb5b9ea?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y2xvdGhpbmd8ZW58MHx8MHx8fDA%3D";
+
+function safeNext(next: string | null) {
+  if (!next) return "";
+  if (!next.startsWith("/")) return "";
+  if (next.startsWith("//")) return "";
+  return next;
+}
 
 export default function LoginPage() {
   const router = useRouter();
+  const sp = useSearchParams();
+
+  const nextUrl = useMemo(() => safeNext(sp.get("next")), [sp]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,8 +65,13 @@ export default function LoginPage() {
 
       const role = data?.user?.role;
 
-      if (role === "admin") router.push("/admin");
-      else router.push("/dashboard");
+      if (role === "admin") {
+        const target = nextUrl.startsWith("/admin") ? nextUrl : "/admin";
+        router.push(target);
+      } else {
+        const target = nextUrl && !nextUrl.startsWith("/admin") ? nextUrl : "/dashboard";
+        router.push(target);
+      }
 
       setMsg({ type: "ok", text: "Logged in. Redirecting..." });
     } catch {
@@ -68,7 +83,6 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen grid lg:grid-cols-2 page">
-      {/* Left - image */}
       <section className="relative hidden lg:block">
         <Image src={BG} alt="Dress background" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-black/60" />
@@ -102,7 +116,6 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* Right - form */}
       <section className="flex items-center justify-center px-6 py-14">
         <div className="w-full max-w-md">
           <div className="lg:hidden">
@@ -131,7 +144,11 @@ export default function LoginPage() {
                 disabled={loading}
               />
 
-              <button type="submit" disabled={loading} className="btn-primary w-full py-4 text-sm disabled:opacity-60">
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full py-4 text-sm disabled:opacity-60"
+              >
                 {loading ? "Logging in..." : "Login"}
               </button>
 
@@ -149,16 +166,22 @@ export default function LoginPage() {
 
               <p className="text-sm muted">
                 Don’t have an account?{" "}
-                <Link href="/register" className="text-[color:var(--accent)] font-bold hover:underline">
+                <Link
+                  href={nextUrl ? `/register?next=${encodeURIComponent(nextUrl)}` : "/register"}
+                  className="text-[color:var(--accent)] font-bold hover:underline"
+                >
                   Create one
                 </Link>
               </p>
+
               <p className="text-sm muted">
-                <Link href="/policies" className="text-[color:var(--accent)] font-bold hover:underline">
-                  Terma and Privacy
+                <Link
+                  href="/policies"
+                  className="text-[color:var(--accent)] font-bold hover:underline"
+                >
+                  Terms and Privacy
                 </Link>
               </p>
-
             </form>
           </div>
         </div>

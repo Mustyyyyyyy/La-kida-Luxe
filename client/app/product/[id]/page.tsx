@@ -306,7 +306,6 @@ export default function ProductDetailsPage() {
                   </div>
                 </div>
 
-                {/* ACTIONS */}
                 {outOfStock ? (
                   <div className="mt-8 space-y-3">
                     <button
