@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function BrandLogo({
   href = "/",
   showText = true,
-  size = 80,
+  size = 200, 
   className = "",
 }: {
   href?: string;
@@ -29,10 +29,11 @@ export default function BrandLogo({
 
       {showText ? (
         <span className="leading-tight">
-          <span className="block text-lg font-bold tracking-widest font-serif uppercase text-[color:var(--accent)]">
+          <span className="block text-xl sm:text-2xl font-extrabold tracking-widest font-serif uppercase text-[#2b0046]">
             LA&apos;KIDA
           </span>
-          <span className="block text-[11px] uppercase tracking-[0.2em] text-white/70">
+
+          <span className="block text-[12px] sm:text-[13px] uppercase tracking-[0.2em] text-[rgba(43,0,70,0.75)] font-bold">
             Designed to be unusually classy
           </span>
         </span>
