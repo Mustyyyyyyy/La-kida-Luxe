@@ -1,11 +1,10 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
 import AuthLink from "@/components/AuthLink";
-import * as React from "react";
 
 type Product = {
   _id: string;
@@ -15,12 +14,14 @@ type Product = {
   images?: { url: string; publicId: string }[];
 };
 
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+
 function formatNaira(amount: number) {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(amount || 0);
 }
 
 function pickImage(p: Product) {
@@ -30,15 +31,35 @@ function pickImage(p: Product) {
 const DP = "text-[#2b0046]";
 const DP_MUTED = "text-[rgba(43,0,70,0.75)]";
 
-export default async function HomePage() {
-  let products: Product[] = [];
-  try {
-    products = await getProducts();
-  } catch {
-    products = [];
-  }
+export default function HomePage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
-  const newArrivals = products.slice(0, 6);
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      try {
+        setLoadingProducts(true);
+        const res = await fetch(`${API_URL}/api/products`, { cache: "no-store" });
+        const data = await res.json().catch(() => ([]));
+        if (!mounted) return;
+        setProducts(Array.isArray(data) ? data : []);
+      } catch {
+        if (!mounted) return;
+        setProducts([]);
+      } finally {
+        if (mounted) setLoadingProducts(false);
+      }
+    }
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const newArrivals = useMemo(() => products.slice(0, 6), [products]);
 
   const categories = [
     { name: "Bridal wears", href: "/shop?category=Bridal%20wears", icon: "diamond" },
@@ -52,12 +73,14 @@ export default async function HomePage() {
     <main className="page">
       <Header />
 
+      {/* HERO */}
       <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-white/65 z-10" />
+          <div className="absolute inset-0 bg-white/65 z-10 pointer-events-none" />
           <div className="absolute inset-0">
+            {/* IMPORTANT: Don't leave src="" or Next/Image will error */}
             <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOO59_EHre-MkrNUXU0f4HahP1eW2UERAfZswRyTHdj0jh_WYDCuYjqAhWixHmMBmvp8ZZd5Mk49hCenMdQqp6e5vFV0mM5Og9w0mj3aQRmLjccxA5Tzs8t2AQLC_3WMI9mccIh-5NgoVJosgJdD-6dPq9IaUc0oI_CTzrrqYbTwynHO_l6kFC3ID0z7lGJJnbMjjFIMC9pmEfsExZh51hDfNuzLxO8epnoCNXZRYEIe9SdtmUJ3mLKuxpLG7WLu10T5DoYqTAsM"
+              src="https://images.unsplash.com/photo-1520975958225-2f8b39f0f3e5?auto=format&fit=crop&w=1600&q=80"
               alt="High fashion African couture runway"
               fill
               className="object-cover object-center"
@@ -111,23 +134,18 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* CATEGORIES */}
       <section className="py-16 px-6 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>
-                Explore
-              </span>
+              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>Explore</span>
               <h2 className={`text-4xl md:text-5xl font-bold mt-2 font-serif ${DP}`}>
                 Shop by Category
               </h2>
             </div>
 
-            <AuthLink
-              href="/shop"
-              requireAuth
-              className={`text-base font-semibold hover:underline ${DP}`}
-            >
+            <AuthLink href="/shop" requireAuth className={`text-base font-semibold hover:underline ${DP}`}>
               View all →
             </AuthLink>
           </div>
@@ -151,32 +169,25 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* NEW ARRIVALS */}
       <section className="py-16 px-6 lg:px-20" id="collections">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>
-                New Arrivals
-              </span>
+              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>New Arrivals</span>
               <h2 className={`text-4xl md:text-6xl font-bold mt-2 font-serif ${DP}`}>
                 Signature Pieces
               </h2>
             </div>
 
-            <AuthLink
-              href="/shop"
-              requireAuth
-              className={`text-base font-semibold hover:underline ${DP}`}
-            >
+            <AuthLink href="/shop" requireAuth className={`text-base font-semibold hover:underline ${DP}`}>
               View all →
             </AuthLink>
           </div>
 
-          {newArrivals.length === 0 ? (
+          {loadingProducts || newArrivals.length === 0 ? (
             <div className="card p-10 text-center">
-              <p className={`text-lg font-semibold ${DP}`}>
-                No products yet.
-              </p>
+              <p className={`text-lg font-semibold ${DP}`}>No products yet.</p>
               <p className={`mt-2 ${DP_MUTED}`}>
                 Once the admin adds products, they will appear here automatically.
               </p>
@@ -190,7 +201,7 @@ export default async function HomePage() {
                   requireAuth
                   className="group card p-0 overflow-hidden hover:shadow-xl transition"
                 >
-                  <div className="relative aspect-[3/4] bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                  <div className="relative aspect-[3/4] bg-slate-200 overflow-hidden">
                     <Image
                       src={pickImage(p)}
                       alt={p.title}
@@ -206,9 +217,7 @@ export default async function HomePage() {
 
                   <div className="p-5">
                     <h3 className={`text-2xl font-bold font-serif ${DP}`}>{p.title}</h3>
-                    <p className={`mt-1 font-semibold text-lg ${DP}`}>
-                      {formatNaira(p.price)}
-                    </p>
+                    <p className={`mt-1 font-semibold text-lg ${DP}`}>{formatNaira(p.price)}</p>
                     <p className={`mt-2 text-base ${DP_MUTED}`}>{p.category || "General"}</p>
                   </div>
                 </AuthLink>
@@ -233,12 +242,10 @@ function Header() {
 }
 
 function HeaderMenu() {
-  "use client";
+  const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
-  const [open, setOpen] = React.useState(false);
-  const [loggedIn, setLoggedIn] = React.useState(false);
-
-  React.useEffect(() => {
+  useEffect(() => {
     setLoggedIn(!!localStorage.getItem("token"));
   }, []);
 
@@ -260,13 +267,14 @@ function HeaderMenu() {
   ];
 
   const linksLoggedIn = [
+    { label: "Dashboard", href: "/dashboard" },
     { label: "Shop", href: "/shop" },
     { label: "Orders", href: "/orders" },
     { label: "Cart", href: "/cart" },
   ];
 
   return (
-    <div className="relative">
+    <div className="relative z-[9999]">
       <button
         className="btn-outline px-3 py-2"
         onClick={() => setOpen((v) => !v)}
@@ -289,7 +297,7 @@ function HeaderMenu() {
               <Link
                 key={l.href}
                 href={l.href}
-                onClick={close as any}
+                onClick={close}
                 className={`block px-4 py-3 rounded-lg hover:bg-white/10 font-bold text-base ${DP}`}
               >
                 {l.label}
@@ -302,7 +310,7 @@ function HeaderMenu() {
               <>
                 <Link
                   href="/contact"
-                  onClick={close as any}
+                  onClick={close}
                   className={`block px-4 py-3 rounded-lg hover:bg-white/10 font-semibold ${DP}`}
                 >
                   Contact
@@ -311,7 +319,7 @@ function HeaderMenu() {
             ) : (
               <button
                 onClick={doLogout}
-                className={`w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 font-bold text-red-600`}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-white/10 font-bold text-red-600"
                 type="button"
               >
                 Logout

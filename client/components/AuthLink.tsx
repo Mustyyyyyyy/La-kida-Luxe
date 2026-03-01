@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 export default function AuthLink({
   href,
@@ -16,12 +16,13 @@ export default function AuthLink({
   requireAuth?: boolean;
   loginHref?: string;
 }) {
-  const authed = useMemo(() => {
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
     try {
-      const token = localStorage.getItem("token");
-      return Boolean(token);
+      setAuthed(Boolean(localStorage.getItem("token")));
     } catch {
-      return false;
+      setAuthed(false);
     }
   }, []);
 
