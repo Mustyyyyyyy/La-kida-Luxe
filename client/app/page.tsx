@@ -14,7 +14,9 @@ type Product = {
   images?: { url: string; publicId: string }[];
 };
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+).replace(/\/$/, "");
 
 function formatNaira(amount: number) {
   return new Intl.NumberFormat("en-NG", {
@@ -41,8 +43,10 @@ export default function HomePage() {
     async function load() {
       try {
         setLoadingProducts(true);
-        const res = await fetch(`${API_URL}/api/products`, { cache: "no-store" });
-        const data = await res.json().catch(() => ([]));
+        const res = await fetch(`${API_URL}/api/products`, {
+          cache: "no-store",
+        });
+        const data = await res.json().catch(() => []);
         if (!mounted) return;
         setProducts(Array.isArray(data) ? data : []);
       } catch {
@@ -62,23 +66,37 @@ export default function HomePage() {
   const newArrivals = useMemo(() => products.slice(0, 6), [products]);
 
   const categories = [
-    { name: "Bridal wears", href: "/shop?category=Bridal%20wears", icon: "diamond" },
+    {
+      name: "Bridal wears",
+      href: "/shop?category=Bridal%20wears",
+      icon: "diamond",
+    },
     { name: "Aso ebi", href: "/shop?category=Aso%20ebi", icon: "styler" },
-    { name: "Corporate fits", href: "/shop?category=Corporate%20fits", icon: "checkroom" },
-    { name: "Casual wears", href: "/shop?category=Casual%20wears", icon: "apparel" },
-    { name: "Birthday dress", href: "/shop?category=Birthday%20dress", icon: "celebration" },
+    {
+      name: "Corporate fits",
+      href: "/shop?category=Corporate%20fits",
+      icon: "checkroom",
+    },
+    {
+      name: "Casual wears",
+      href: "/shop?category=Casual%20wears",
+      icon: "apparel",
+    },
+    {
+      name: "Birthday dress",
+      href: "/shop?category=Birthday%20dress",
+      icon: "celebration",
+    },
   ];
 
   return (
     <main className="page">
       <Header />
 
-      {/* HERO */}
       <section className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center pt-20">
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-white/65 z-10 pointer-events-none" />
           <div className="absolute inset-0">
-            {/* IMPORTANT: Don't leave src="" or Next/Image will error */}
             <Image
               src="https://images.unsplash.com/photo-1520975958225-2f8b39f0f3e5?auto=format&fit=crop&w=1600&q=80"
               alt="High fashion African couture runway"
@@ -90,7 +108,9 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-20 text-center px-4 max-w-4xl">
-          <h1 className={`text-6xl md:text-9xl font-bold mb-6 tracking-tight ${DP}`}>
+          <h1
+            className={`text-6xl md:text-9xl font-bold mb-6 tracking-tight ${DP}`}
+          >
             LA&apos;KIDA
           </h1>
 
@@ -110,42 +130,57 @@ export default function HomePage() {
             <AuthLink
               href="/custom-order"
               requireAuth
-              className="btn-outline px-10 py-4 text-xl hover:bg-white/10"
+              className="btn-primary px-10 py-4 text-xl hover:brightness-100"
             >
               Request Custom Designs.
             </AuthLink>
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-3 text-base">
-            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
+            <span className="px-5 py-3 rounded-full bg-[#2b0046] text-white border border-[#2b0046]/30 font-bold">
               Perfect Fit
             </span>
-            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
+
+            <span className="px-5 py-3 rounded-full bg-[#2b0046] text-white border border-[#2b0046]/30 font-bold">
               Premium Fabrics
             </span>
-            <span className={`px-5 py-3 rounded-full bg-white/60 border border-black/10 font-semibold ${DP}`}>
+
+            <span className="px-5 py-3 rounded-full bg-[#2b0046] text-white border border-[#2b0046]/30 font-bold">
               Delivery Available
             </span>
           </div>
         </div>
 
-        <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce ${DP}`}>
-          <span className="material-symbols-outlined text-5xl">expand_more</span>
+        <div
+          className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce ${DP}`}
+        >
+          <span className="material-symbols-outlined text-5xl">
+            expand_more
+          </span>
         </div>
       </section>
 
-      {/* CATEGORIES */}
       <section className="py-16 px-6 lg:px-20">
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>Explore</span>
-              <h2 className={`text-4xl md:text-5xl font-bold mt-2 font-serif ${DP}`}>
+              <span
+                className={`font-bold tracking-widest uppercase text-sm ${DP}`}
+              >
+                Explore
+              </span>
+              <h2
+                className={`text-4xl md:text-5xl font-bold mt-2 font-serif ${DP}`}
+              >
                 Shop by Category
               </h2>
             </div>
 
-            <AuthLink href="/shop" requireAuth className={`text-base font-semibold hover:underline ${DP}`}>
+            <AuthLink
+              href="/shop"
+              requireAuth
+              className={`text-base font-semibold hover:underline ${DP}`}
+            >
               View all →
             </AuthLink>
           </div>
@@ -158,10 +193,14 @@ export default function HomePage() {
                 requireAuth
                 className="group card p-6 hover:bg-white/10 transition"
               >
-                <div className={`w-12 h-12 rounded-full bg-white/30 flex items-center justify-center mb-4 ${DP}`}>
+                <div
+                  className={`w-12 h-12 rounded-full bg-white/30 flex items-center justify-center mb-4 ${DP}`}
+                >
                   <span className="material-symbols-outlined">{c.icon}</span>
                 </div>
-                <h3 className={`text-xl font-bold font-serif ${DP}`}>{c.name}</h3>
+                <h3 className={`text-xl font-bold font-serif ${DP}`}>
+                  {c.name}
+                </h3>
                 <p className={`text-base mt-1 ${DP_MUTED}`}>View pieces →</p>
               </AuthLink>
             ))}
@@ -174,13 +213,23 @@ export default function HomePage() {
         <div className="max-w-[1400px] mx-auto">
           <div className="flex items-end justify-between gap-6 mb-10">
             <div>
-              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>New Arrivals</span>
-              <h2 className={`text-4xl md:text-6xl font-bold mt-2 font-serif ${DP}`}>
+              <span
+                className={`font-bold tracking-widest uppercase text-sm ${DP}`}
+              >
+                New Arrivals
+              </span>
+              <h2
+                className={`text-4xl md:text-6xl font-bold mt-2 font-serif ${DP}`}
+              >
                 Signature Pieces
               </h2>
             </div>
 
-            <AuthLink href="/shop" requireAuth className={`text-base font-semibold hover:underline ${DP}`}>
+            <AuthLink
+              href="/shop"
+              requireAuth
+              className={`text-base font-semibold hover:underline ${DP}`}
+            >
               View all →
             </AuthLink>
           </div>
@@ -189,7 +238,8 @@ export default function HomePage() {
             <div className="card p-10 text-center">
               <p className={`text-lg font-semibold ${DP}`}>No products yet.</p>
               <p className={`mt-2 ${DP_MUTED}`}>
-                Once the admin adds products, they will appear here automatically.
+                Once the admin adds products, they will appear here
+                automatically.
               </p>
             </div>
           ) : (
@@ -216,9 +266,15 @@ export default function HomePage() {
                   </div>
 
                   <div className="p-5">
-                    <h3 className={`text-2xl font-bold font-serif ${DP}`}>{p.title}</h3>
-                    <p className={`mt-1 font-semibold text-lg ${DP}`}>{formatNaira(p.price)}</p>
-                    <p className={`mt-2 text-base ${DP_MUTED}`}>{p.category || "General"}</p>
+                    <h3 className={`text-2xl font-bold font-serif ${DP}`}>
+                      {p.title}
+                    </h3>
+                    <p className={`mt-1 font-semibold text-lg ${DP}`}>
+                      {formatNaira(p.price)}
+                    </p>
+                    <p className={`mt-2 text-base ${DP_MUTED}`}>
+                      {p.category || "General"}
+                    </p>
                   </div>
                 </AuthLink>
               ))}
@@ -281,7 +337,9 @@ function HeaderMenu() {
         aria-label="Open menu"
         type="button"
       >
-        <span className="material-symbols-outlined">{open ? "close" : "menu"}</span>
+        <span className="material-symbols-outlined">
+          {open ? "close" : "menu"}
+        </span>
       </button>
 
       {open ? (
