@@ -113,7 +113,7 @@ export default function NewProductPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold font-serif">Add Product</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-2 text-sm text-dark-600 dark:text-white-300">
             Upload images, then save product details.
           </p>
         </div>
@@ -154,7 +154,7 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <p className="mt-2 text-sm text-dark-600 dark:text-slate-300">
             Upload up to 8 images at once (Cloudinary).
           </p>
 
@@ -177,7 +177,7 @@ export default function NewProductPage() {
             ))}
 
             {images.length === 0 ? (
-              <div className="col-span-2 md:col-span-3 text-sm text-slate-600 dark:text-slate-300 py-10">
+              <div className="col-span-2 md:col-span-3 text-sm text-dark-600 dark:text-slate-300 py-10">
                 No images yet. Upload to start.
               </div>
             ) : null}

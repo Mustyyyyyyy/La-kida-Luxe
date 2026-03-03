@@ -60,9 +60,7 @@ function AdminShell({ children }: { children: ReactNode }) {
             aria-label="Open menu"
             type="button"
           >
-            <span className="material-symbols-outlined text-[color:var(--accent)]">
-              menu
-            </span>
+            <span className="material-symbols-outlined">menu</span>
           </button>
 
           <BrandLogo size={44} />
@@ -75,22 +73,16 @@ function AdminShell({ children }: { children: ReactNode }) {
             aria-label="Admin Dashboard"
             title="Admin Dashboard"
           >
-            <span className="material-symbols-outlined text-base text-[color:var(--accent)]">
-              grid_view
-            </span>
-            <span className="ml-2 hidden sm:inline text-[color:var(--accent)]">
-              Dashboard
-            </span>
+            <span className="material-symbols-outlined text-base">grid_view</span>
+            <span className="ml-2 hidden sm:inline">Dashboard</span>
           </Link>
 
           <Link
             href="/"
             className="hidden sm:inline-flex btn-outline px-4 py-2 text-xs hover:bg-white/10"
           >
-            <span className="material-symbols-outlined text-base text-[color:var(--accent)]">
-              home
-            </span>
-            <span className="ml-2 text-[color:var(--accent)]">View site</span>
+            <span className="material-symbols-outlined text-base">home</span>
+            <span className="ml-2">View site</span>
           </Link>
 
           <button
@@ -106,10 +98,10 @@ function AdminShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen">
         <aside className="hidden lg:flex w-72 flex-col border-r border-white/10 bg-[rgba(18,0,24,0.55)]">
           <div className="px-6 py-6 border-b border-white/10">
-            <div className="text-xs tracking-[0.2em] uppercase text-[rgba(76,29,149,0.75)]">
+            <div className="text-xs tracking-[0.2em] uppercase text-white/60">
               Admin Console
             </div>
-            <div className="mt-3 text-sm text-[color:var(--accent)]">
+            <div className="mt-3 text-sm text-white/70">
               {user?.fullName || "Admin"} {user?.email ? `• ${user.email}` : ""}
             </div>
           </div>
@@ -123,7 +115,7 @@ function AdminShell({ children }: { children: ReactNode }) {
                   "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition",
                   isActive(item.href)
                     ? "bg-white/10 text-[color:var(--accent)] border border-white/10"
-                    : "text-[color:var(--accent)] hover:bg-white/10",
+                    : "text-white/80 hover:bg-white/10",
                 ].join(" ")}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
@@ -157,13 +149,11 @@ function AdminShell({ children }: { children: ReactNode }) {
                   aria-label="Close menu"
                   type="button"
                 >
-                  <span className="material-symbols-outlined text-[color:var(--accent)]">
-                    close
-                  </span>
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
 
-              <div className="mt-3 text-sm text-[color:var(--accent)]">
+              <div className="mt-3 text-sm text-white/70">
                 {user?.fullName || "Admin"} {user?.email ? `• ${user.email}` : ""}
               </div>
 
@@ -172,12 +162,12 @@ function AdminShell({ children }: { children: ReactNode }) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={() => setOpen(false)} 
                     className={[
                       "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition",
                       isActive(item.href)
                         ? "bg-white/10 text-[color:var(--accent)] border border-white/10"
-                        : "text-[color:var(--accent)] hover:bg-white/10",
+                        : "text-white/80 hover:bg-white/10",
                     ].join(" ")}
                   >
                     <span className="material-symbols-outlined">{item.icon}</span>
@@ -188,7 +178,7 @@ function AdminShell({ children }: { children: ReactNode }) {
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-[color:var(--accent)] hover:bg-white/10"
+                  className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white/80 hover:bg-white/10"
                 >
                   <span className="material-symbols-outlined">home</span>
                   <span>View site</span>

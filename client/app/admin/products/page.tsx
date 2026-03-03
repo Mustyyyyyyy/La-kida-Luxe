@@ -63,31 +63,33 @@ export default function AdminProductsPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif">Products</h1>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          <h1 className="text-3xl md:text-4xl font-bold font-serif text-[color:var(--accent)]">
+            Products
+          </h1>
+          <p className="mt-2 text-sm font-bold text-[rgba(76,29,149,0.75)]">
             Create, update, and manage your catalogue.
           </p>
         </div>
 
         <Link
           href="/admin/products/new"
-          className="bg-[#f2d00d] text-[#221f10] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:brightness-110"
+          className="bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]"
         >
           Add Product
         </Link>
       </div>
 
       {err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-500">
+        <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-5 text-sm font-bold text-red-600">
           {err}
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 overflow-hidden">
+      <div className="rounded-2xl border border-white/10 bg-[color:var(--accent)] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-[900px] w-full text-sm">
-            <thead className="text-slate-600 dark:text-slate-300">
-              <tr className="border-b border-[#f2d00d]/15">
+            <thead className="text-white/85 font-extrabold">
+              <tr className="border-b border-white/15">
                 <th className="text-left py-3 px-5">Product</th>
                 <th className="text-left py-3 px-5">Category</th>
                 <th className="text-left py-3 px-5">Price</th>
@@ -97,25 +99,25 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="text-white font-bold">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-10 px-5 text-slate-600 dark:text-slate-300">
+                  <td colSpan={6} className="py-10 px-5 text-white/80">
                     Loading products...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-10 px-5 text-slate-600 dark:text-slate-300">
+                  <td colSpan={6} className="py-10 px-5 text-white/80">
                     No products yet. Click “Add Product”.
                   </td>
                 </tr>
               ) : (
                 items.map((p) => (
-                  <tr key={p._id} className="border-b border-[#f2d00d]/10">
+                  <tr key={p._id} className="border-b border-white/10">
                     <td className="py-3 px-5">
                       <div className="flex items-center gap-3">
-                        <div className="relative w-12 h-14 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800">
+                        <div className="relative w-12 h-14 rounded-lg overflow-hidden bg-white/10 border border-white/10">
                           <Image
                             src={p.images?.[0]?.url || "/placeholder-1.jpg"}
                             alt={p.title}
@@ -123,18 +125,23 @@ export default function AdminProductsPage() {
                             className="object-cover"
                           />
                         </div>
-                        <div>
-                          <div className="font-semibold">{p.title}</div>
-                          <div className="text-xs text-slate-500">{p._id.slice(-6)}</div>
+                        <div className="min-w-0">
+                          <div className="font-extrabold truncate">{p.title}</div>
+                          <div className="text-xs text-white/70 font-bold">
+                            {p._id.slice(-6)}
+                          </div>
                         </div>
                       </div>
                     </td>
 
                     <td className="py-3 px-5">{p.category || "General"}</td>
-                    <td className="py-3 px-5 font-semibold">{formatNaira(p.price)}</td>
+                    <td className="py-3 px-5 font-extrabold">
+                      {formatNaira(p.price)}
+                    </td>
                     <td className="py-3 px-5">{p.stockQty ?? 0}</td>
+
                     <td className="py-3 px-5">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border border-[#f2d00d]/25 bg-[#f2d00d]/10 text-[#f2d00d]">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold border border-white/20 bg-white/10 text-white">
                         {p.inStock === false ? "Out" : "In stock"}
                       </span>
                     </td>
@@ -143,7 +150,7 @@ export default function AdminProductsPage() {
                       <div className="inline-flex gap-2">
                         <Link
                           href={`/admin/products/${p._id}/edit`}
-                          className="border border-[#f2d00d]/35 text-[#f2d00d] px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-[#f2d00d]/10"
+                          className="bg-white text-[color:var(--accent)] px-3 py-2 rounded-lg font-extrabold uppercase tracking-widest text-[10px] hover:bg-white/90"
                         >
                           Edit
                         </Link>
@@ -151,7 +158,7 @@ export default function AdminProductsPage() {
                         <button
                           onClick={() => onDelete(p._id)}
                           disabled={busyId === p._id}
-                          className="border border-red-500/35 text-red-500 px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] hover:bg-red-500/10 disabled:opacity-60"
+                          className="bg-red-600 text-white px-3 py-2 rounded-lg font-extrabold uppercase tracking-widest text-[10px] hover:bg-red-700 disabled:opacity-60"
                         >
                           {busyId === p._id ? "Deleting..." : "Delete"}
                         </button>
@@ -167,7 +174,7 @@ export default function AdminProductsPage() {
 
       <button
         onClick={load}
-        className="border border-[#f2d00d]/35 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
+        className="bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]"
       >
         Refresh
       </button>
