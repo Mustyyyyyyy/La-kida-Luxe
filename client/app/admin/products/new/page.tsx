@@ -154,8 +154,8 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          <p className="mt-2 text-sm text-dark-600 dark:text-slate-300">
-            Upload up to 8 images at once (Cloudinary).
+          <p className="mt-2 text-sm text-dark-600 dark:text-whit-300">
+            Upload up to 8 images at once.
           </p>
 
           <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -177,7 +177,7 @@ export default function NewProductPage() {
             ))}
 
             {images.length === 0 ? (
-              <div className="col-span-2 md:col-span-3 text-sm text-dark-600 dark:text-slate-300 py-10">
+              <div className="col-span-2 md:col-span-3 text-sm text-dark-600 dark:text-white-300 py-10">
                 No images yet. Upload to start.
               </div>
             ) : null}
