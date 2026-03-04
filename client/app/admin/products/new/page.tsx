@@ -5,14 +5,19 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { apiFetchAuth, getApiUrl, getToken } from "@/lib/adminApi";
 
-type UploadedImage = { url: string; publicId: string; width?: number; height?: number };
+type UploadedImage = {
+  url: string;
+  publicId: string;
+  width?: number;
+  height?: number;
+};
 
 export default function NewProductPage() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("General");
   const [price, setPrice] = useState<number>(0);
   const [description, setDescription] = useState("");
-  const [sizes, setSizes] = useState(""); 
+  const [sizes, setSizes] = useState("");
   const [colors, setColors] = useState("");
   const [stockQty, setStockQty] = useState<number>(0);
   const [inStock, setInStock] = useState(true);
@@ -20,9 +25,14 @@ export default function NewProductPage() {
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
+    null
+  );
 
-  const canSave = useMemo(() => title.trim().length >= 2 && price >= 0, [title, price]);
+  const canSave = useMemo(
+    () => title.trim().length >= 2 && price >= 0,
+    [title, price]
+  );
 
   async function uploadFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -56,7 +66,7 @@ export default function NewProductPage() {
     }
   }
 
-  async function removeImage(publicId: string) {
+  function removeImage(publicId: string) {
     setImages((prev) => prev.filter((x) => x.publicId !== publicId));
   }
 
@@ -112,14 +122,17 @@ export default function NewProductPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif">Add Product</h1>
-          <p className="mt-2 text-sm text-dark-600 dark:text-white-300">
+          <h1 className="text-3xl md:text-4xl font-bold font-serif text-[color:var(--accent)]">
+            Add Product
+          </h1>
+          <p className="mt-2 text-sm font-bold text-[rgba(76,29,149,0.75)]">
             Upload images, then save product details.
           </p>
         </div>
+
         <Link
           href="/admin/products"
-          className="border border-[#f2d00d]/35 text-[#f2d00d] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:bg-[#f2d00d]/10"
+          className="bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]"
         >
           Back
         </Link>
@@ -127,10 +140,10 @@ export default function NewProductPage() {
 
       {msg ? (
         <div
-          className={`rounded-2xl border p-4 text-sm ${
+          className={`rounded-2xl border p-4 text-sm font-bold ${
             msg.type === "ok"
-              ? "border-green-500/30 bg-green-500/10 text-green-500"
-              : "border-red-500/30 bg-red-500/10 text-red-500"
+              ? "border-green-500/30 bg-green-500/10 text-green-200"
+              : "border-red-500/30 bg-red-500/10 text-red-200"
           }`}
         >
           {msg.text}
@@ -138,10 +151,11 @@ export default function NewProductPage() {
       ) : null}
 
       <div className="grid lg:grid-cols-2 gap-8">
-        <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold font-serif">Images</h2>
-            <label className="cursor-pointer bg-[#f2d00d] text-[#221f10] px-4 py-2 rounded-lg font-bold uppercase tracking-widest text-xs hover:brightness-110">
+        <div className="card p-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-xl font-bold font-serif text-white">Images</h2>
+
+            <label className="cursor-pointer bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]">
               {uploading ? "Uploading..." : "Upload"}
               <input
                 type="file"
@@ -154,7 +168,7 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          <p className="mt-2 text-sm text-dark-600 dark:text-whit-300">
+          <p className="mt-2 text-sm font-bold text-white/80">
             Upload up to 8 images at once.
           </p>
 
@@ -162,7 +176,7 @@ export default function NewProductPage() {
             {images.map((img) => (
               <div
                 key={img.publicId}
-                className="relative aspect-[3/4] rounded-xl overflow-hidden border border-[#f2d00d]/15 bg-slate-200 dark:bg-slate-800"
+                className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 bg-white/5"
               >
                 <Image src={img.url} alt="Product" fill className="object-cover" />
                 <button
@@ -171,25 +185,27 @@ export default function NewProductPage() {
                   type="button"
                   aria-label="Remove"
                 >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
+                  <span className="material-symbols-outlined text-[20px]">
+                    close
+                  </span>
                 </button>
               </div>
             ))}
 
             {images.length === 0 ? (
-              <div className="col-span-2 md:col-span-3 text-sm text-dark-600 dark:text-white-300 py-10">
+              <div className="col-span-2 md:col-span-3 text-sm font-bold text-white/80 py-10">
                 No images yet. Upload to start.
               </div>
             ) : null}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-[#f2d00d]/15 bg-white/70 dark:bg-white/5 p-6">
-          <h2 className="text-xl font-bold font-serif">Details</h2>
+        <div className="card p-6">
+          <h2 className="text-xl font-bold font-serif text-white">Details</h2>
 
           <div className="mt-6 grid gap-5">
-            <Field label="Title" value={title} onChange={setTitle} placeholder="Senator Kaftan" />
-            <Field label="Category" value={category} onChange={setCategory} placeholder="Kaftans" />
+            <Field label="Title" value={title} onChange={setTitle} placeholder="Casual" />
+            <Field label="Category" value={category} onChange={setCategory} placeholder="Wears" />
 
             <div className="grid sm:grid-cols-2 gap-4">
               <NumberField label="Price (NGN)" value={price} onChange={setPrice} />
@@ -202,11 +218,11 @@ export default function NewProductPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+              <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
                 Description
               </label>
               <textarea
-                className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+                className="input"
                 rows={5}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -214,27 +230,25 @@ export default function NewProductPage() {
               />
             </div>
 
-            <label className="inline-flex items-center gap-3 text-sm">
+            <label className="inline-flex items-center gap-3 text-sm font-bold text-white">
               <input
                 type="checkbox"
                 checked={inStock}
                 onChange={(e) => setInStock(e.target.checked)}
               />
-              <span className="text-slate-700 dark:text-slate-200">
-                In stock
-              </span>
+              <span>In stock</span>
             </label>
 
             <button
               type="button"
               onClick={onCreate}
               disabled={!canSave || saving}
-              className="w-full bg-[#f2d00d] text-[#221f10] py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:brightness-110 disabled:opacity-60"
+              className="w-full bg-[color:var(--accent)] text-white py-4 rounded-lg font-extrabold text-sm uppercase tracking-widest hover:bg-[color:var(--accent2)] disabled:opacity-60"
             >
               {saving ? "Saving..." : "Create Product"}
             </button>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs font-bold text-white/70">
               Tip: upload images first, then create product.
             </p>
           </div>
@@ -257,11 +271,11 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+        className="input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
@@ -281,12 +295,12 @@ function NumberField({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-bold uppercase tracking-widest text-[#f2d00d]">
+      <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
       <input
         type="number"
-        className="w-full bg-white/60 dark:bg-white/5 border border-[#f2d00d]/20 rounded-lg focus:ring-[#f2d00d] focus:border-[#f2d00d] px-4 py-3"
+        className="input"
         value={Number.isFinite(value) ? value : 0}
         onChange={(e) => onChange(Number(e.target.value))}
       />
