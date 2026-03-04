@@ -123,7 +123,7 @@ export default function HomePage() {
               Shop Now
             </AuthLink>
 
-            <AuthLink href="/custom-order" requireAuth className="btn-outline px-10 py-4 text-xl hover:bg-white/10">
+            <AuthLink href="/custom-order" requireAuth className="btn-primary px-10 py-4 text-xl hover:brightness-110">
               Request Custom Designs.
             </AuthLink>
           </div>
@@ -145,20 +145,10 @@ export default function HomePage() {
         <div className="max-w-[1400px] mx-auto space-y-10">
           <div className="flex items-end justify-between gap-6">
             <div>
-              <span className={`font-bold tracking-widest uppercase text-sm ${DP}`}>
-                Portfolio
-              </span>
               <h2 className={`text-4xl md:text-5xl font-bold mt-2 font-serif ${DP}`}>
                 Shop by Category
               </h2>
-              <p className={`mt-3 font-semibold ${DP_MUTED}`}>
-                Admin picks a category → product shows inside that category.
-              </p>
             </div>
-
-            <AuthLink href="/shop" requireAuth className={`text-base font-semibold hover:underline ${DP}`}>
-              View all →
-            </AuthLink>
           </div>
 
           {loading ? (
