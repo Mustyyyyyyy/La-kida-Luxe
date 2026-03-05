@@ -12,20 +12,32 @@ type UploadedImage = {
   height?: number;
 };
 
+const CATEGORY_OPTIONS = [
+  "Bridal wears",
+  "Aso ebi",
+  "Corporate fits",
+  "Casual wears",
+  "Birthday dress",
+  "General",
+];
+
 export default function NewProductPage() {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(""); 
+  const [category, setCategory] = useState("General");
+
   const [price, setPrice] = useState<string>("");
   const [description, setDescription] = useState("");
   const [sizes, setSizes] = useState("");
   const [colors, setColors] = useState("");
-  const [stockQty, setStockQty] = useState<string>(""); 
+  const [stockQty, setStockQty] = useState<string>("");
   const [inStock, setInStock] = useState(true);
 
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
+    null
+  );
 
   const canCreate = useMemo(() => true, []);
 
@@ -57,7 +69,7 @@ export default function NewProductPage() {
         return Array.from(map.values());
       });
 
-      setMsg({ type: "ok", text: "Images uploaded." });
+      setMsg({ type: "ok", text: `Uploaded ${uploaded.length} image(s).` });
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Upload error" });
     } finally {
@@ -78,7 +90,7 @@ export default function NewProductPage() {
     try {
       const payload = {
         title: title.trim() || "Untitled Product",
-        category: category.trim() || "General",
+        category: (category || "").trim() || "General",
         price: price === "" ? 0 : Number(price) || 0,
         description: description.trim() || "",
         images: images.map((i) => ({ url: i.url, publicId: i.publicId })),
@@ -93,10 +105,10 @@ export default function NewProductPage() {
         body: JSON.stringify(payload),
       });
 
-      setMsg({ type: "ok", text: "Product created successfully." });
+      setMsg({ type: "ok", text: "Product created successfully" });
 
       setTitle("");
-      setCategory("");
+      setCategory("General");
       setPrice("");
       setDescription("");
       setSizes("");
@@ -115,17 +127,22 @@ export default function NewProductPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif">Add Product</h1>
+          <h1 className="text-3xl md:text-4xl font-bold font-serif text-white">
+            Add Product
+          </h1>
         </div>
 
-        <Link href="/admin/products" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+        <Link
+          href="/admin/products"
+          className="btn-outline px-4 py-2 text-xs hover:bg-white/10"
+        >
           Back
         </Link>
       </div>
 
       {msg ? (
         <div
-          className={`rounded-2xl border p-4 text-sm ${
+          className={`rounded-2xl border p-4 text-sm font-bold ${
             msg.type === "ok"
               ? "border-green-500/30 bg-green-500/10 text-green-200"
               : "border-red-500/30 bg-red-500/10 text-red-200"
@@ -138,7 +155,7 @@ export default function NewProductPage() {
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="card p-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold font-serif">Images</h2>
+            <h2 className="text-xl font-bold font-serif text-white">Images</h2>
 
             <label className="cursor-pointer btn-primary px-4 py-2 text-xs">
               {uploading ? "Uploading..." : "Upload"}
@@ -153,7 +170,9 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          <p className="mt-2 text-sm muted">Select multiple images.</p>
+          <p className="mt-2 text-sm text-white/80 font-bold">
+            Select multiple images.
+          </p>
 
           <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-4">
             {images.map((img) => (
@@ -161,7 +180,12 @@ export default function NewProductPage() {
                 key={img.publicId}
                 className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 bg-black/20"
               >
-                <Image src={img.url} alt="Product" fill className="object-cover" />
+                <Image
+                  src={img.url}
+                  alt="Product"
+                  fill
+                  className="object-cover pointer-events-none"
+                />
 
                 <button
                   type="button"
@@ -173,13 +197,15 @@ export default function NewProductPage() {
                   }}
                   aria-label="Remove"
                 >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
+                  <span className="material-symbols-outlined text-[20px]">
+                    close
+                  </span>
                 </button>
               </div>
             ))}
 
             {images.length === 0 ? (
-              <div className="col-span-2 md:col-span-3 text-sm muted py-10">
+              <div className="col-span-2 md:col-span-3 text-sm text-white/80 font-bold py-10">
                 No images yet. Upload to start.
               </div>
             ) : null}
@@ -187,25 +213,72 @@ export default function NewProductPage() {
         </div>
 
         <div className="card p-6">
-          <h2 className="text-xl font-bold font-serif">Details</h2>
+          <h2 className="text-xl font-bold font-serif text-white">Details</h2>
 
           <div className="mt-6 grid gap-5">
-            <Field label="Title (optional)" value={title} onChange={setTitle} placeholder="Senator Kaftan" />
-            <Field label="Category (optional)" value={category} onChange={setCategory} placeholder="Bridal wears" />
+            <Field
+              label="Title (optional)"
+              value={title}
+              onChange={setTitle}
+              placeholder="Senator Kaftan"
+            />
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Price (optional)" value={price} onChange={setPrice} placeholder="50000" />
-              <Field label="Stock Qty (optional)" value={stockQty} onChange={setStockQty} placeholder="10" />
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
+                Category
+              </label>
+
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="input font-bold"
+                placeholder="Choose or type…"
+                list="lakida-cats"
+              />
+              <datalist id="lakida-cats">
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
+
+              <p className="text-xs text-white/70 font-bold">
+                Tip: pick from suggestions or type a new category.
+              </p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Sizes (comma, optional)" value={sizes} onChange={setSizes} placeholder="S, M, L" />
-              <Field label="Colors (comma, optional)" value={colors} onChange={setColors} placeholder="Black, Wine" />
+              <Field
+                label="Price (optional)"
+                value={price}
+                onChange={setPrice}
+                placeholder="50000"
+              />
+              <Field
+                label="Stock Qty (optional)"
+                value={stockQty}
+                onChange={setStockQty}
+                placeholder="10"
+              />
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <Field
+                label="Sizes (comma, optional)"
+                value={sizes}
+                onChange={setSizes}
+                placeholder="S, M, L"
+              />
+              <Field
+                label="Colors (comma, optional)"
+                value={colors}
+                onChange={setColors}
+                placeholder="Black, Wine"
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
-                Description (optional)
+                Description 
               </label>
               <textarea
                 className="input"
@@ -217,7 +290,11 @@ export default function NewProductPage() {
             </div>
 
             <label className="inline-flex items-center gap-3 text-sm font-bold text-white">
-              <input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={inStock}
+                onChange={(e) => setInStock(e.target.checked)}
+              />
               In stock
             </label>
 
@@ -252,7 +329,12 @@ function Field({
       <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
-      <input className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      <input
+        className="input"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+      />
     </div>
   );
 }
