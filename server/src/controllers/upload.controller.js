@@ -1,35 +1,28 @@
-const streamifier = require("streamifier");
 const cloudinary = require("../config/cloudinary");
 
 exports.uploadProductImages = async (req, res) => {
   try {
-    if (!req.files?.length) return res.status(400).json({ message: "No images uploaded" });
+    const files = req.files || [];
+    if (!files.length) return res.status(400).json({ message: "No images received" });
 
-    const uploads = req.files.map((file) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: "tailor-fashion/products",
-            resource_type: "image",
-            transformation: [{ quality: "auto", fetch_format: "auto" }],
-          },
-          (err, result) => {
-            if (err) return reject(err);
-            resolve({
-              url: result.secure_url,
-              publicId: result.public_id,
-              width: result.width,
-              height: result.height,
-            });
-          }
-        );
+    const uploaded = [];
 
-        streamifier.createReadStream(file.buffer).pipe(stream);
+    for (const f of files) {
+      const b64 = `data:${f.mimetype};base64,${f.buffer.toString("base64")}`;
+
+      const up = await cloudinary.uploader.upload(b64, {
+        folder: "lakida/products",
       });
-    });
 
-    const results = await Promise.all(uploads);
-    return res.json({ images: results });
+      uploaded.push({
+        url: up.secure_url,
+        publicId: up.public_id,
+        width: up.width,
+        height: up.height,
+      });
+    }
+
+    return res.json({ images: uploaded });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ message: "Upload failed" });

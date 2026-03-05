@@ -14,25 +14,20 @@ type UploadedImage = {
 
 export default function NewProductPage() {
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("General");
-  const [price, setPrice] = useState<number>(0);
+  const [category, setCategory] = useState(""); 
+  const [price, setPrice] = useState<string>("");
   const [description, setDescription] = useState("");
   const [sizes, setSizes] = useState("");
   const [colors, setColors] = useState("");
-  const [stockQty, setStockQty] = useState<number>(0);
+  const [stockQty, setStockQty] = useState<string>(""); 
   const [inStock, setInStock] = useState(true);
 
   const [images, setImages] = useState<UploadedImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(
-    null
-  );
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
-  const canSave = useMemo(
-    () => title.trim().length >= 2 && price >= 0,
-    [title, price]
-  );
+  const canCreate = useMemo(() => true, []);
 
   async function uploadFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
@@ -47,9 +42,7 @@ export default function NewProductPage() {
 
       const res = await fetch(`${getApiUrl()}/api/upload/product-images`, {
         method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
+        headers: { Authorization: token ? `Bearer ${token}` : "" },
         body: fd,
       });
 
@@ -57,7 +50,13 @@ export default function NewProductPage() {
       if (!res.ok) throw new Error(data?.message || "Upload failed");
 
       const uploaded: UploadedImage[] = data?.images || [];
-      setImages((prev) => [...prev, ...uploaded]);
+
+      setImages((prev) => {
+        const map = new Map<string, UploadedImage>();
+        [...prev, ...uploaded].forEach((img) => map.set(img.publicId, img));
+        return Array.from(map.values());
+      });
+
       setMsg({ type: "ok", text: "Images uploaded." });
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Upload error" });
@@ -71,27 +70,21 @@ export default function NewProductPage() {
   }
 
   async function onCreate() {
-    if (!canSave) return;
+    if (!canCreate) return;
 
     setSaving(true);
     setMsg(null);
 
     try {
       const payload = {
-        title: title.trim(),
+        title: title.trim() || "Untitled Product",
         category: category.trim() || "General",
-        price: Number(price) || 0,
-        description: description.trim(),
+        price: price === "" ? 0 : Number(price) || 0,
+        description: description.trim() || "",
         images: images.map((i) => ({ url: i.url, publicId: i.publicId })),
-        sizes: sizes
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        colors: colors
-          .split(",")
-          .map((c) => c.trim())
-          .filter(Boolean),
-        stockQty: Number(stockQty) || 0,
+        sizes: sizes.split(",").map((s) => s.trim()).filter(Boolean),
+        colors: colors.split(",").map((c) => c.trim()).filter(Boolean),
+        stockQty: stockQty === "" ? 0 : Number(stockQty) || 0,
         inStock: Boolean(inStock),
       };
 
@@ -103,12 +96,12 @@ export default function NewProductPage() {
       setMsg({ type: "ok", text: "Product created successfully." });
 
       setTitle("");
-      setCategory("General");
-      setPrice(0);
+      setCategory("");
+      setPrice("");
       setDescription("");
       setSizes("");
       setColors("");
-      setStockQty(0);
+      setStockQty("");
       setInStock(true);
       setImages([]);
     } catch (e: any) {
@@ -122,25 +115,17 @@ export default function NewProductPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif text-[color:var(--accent)]">
-            Add Product
-          </h1>
-          <p className="mt-2 text-sm font-bold text-[rgba(76,29,149,0.75)]">
-            Upload images, then save product details.
-          </p>
+          <h1 className="text-3xl md:text-4xl font-bold font-serif">Add Product</h1>
         </div>
 
-        <Link
-          href="/admin/products"
-          className="bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]"
-        >
+        <Link href="/admin/products" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
           Back
         </Link>
       </div>
 
       {msg ? (
         <div
-          className={`rounded-2xl border p-4 text-sm font-bold ${
+          className={`rounded-2xl border p-4 text-sm ${
             msg.type === "ok"
               ? "border-green-500/30 bg-green-500/10 text-green-200"
               : "border-red-500/30 bg-red-500/10 text-red-200"
@@ -152,10 +137,10 @@ export default function NewProductPage() {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="card p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-bold font-serif text-white">Images</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold font-serif">Images</h2>
 
-            <label className="cursor-pointer bg-[color:var(--accent)] text-white px-4 py-2 rounded-lg font-extrabold uppercase tracking-widest text-xs hover:bg-[color:var(--accent2)]">
+            <label className="cursor-pointer btn-primary px-4 py-2 text-xs">
               {uploading ? "Uploading..." : "Upload"}
               <input
                 type="file"
@@ -168,32 +153,33 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          <p className="mt-2 text-sm font-bold text-white/80">
-            Upload up to 8 images at once.
-          </p>
+          <p className="mt-2 text-sm muted">Select multiple images.</p>
 
           <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-4">
             {images.map((img) => (
               <div
                 key={img.publicId}
-                className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 bg-white/5"
+                className="relative aspect-[3/4] rounded-xl overflow-hidden border border-white/10 bg-black/20"
               >
                 <Image src={img.url} alt="Product" fill className="object-cover" />
+
                 <button
-                  onClick={() => removeImage(img.publicId)}
-                  className="absolute top-2 right-2 w-9 h-9 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/70"
                   type="button"
+                  className="absolute top-2 right-2 z-20 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeImage(img.publicId);
+                  }}
                   aria-label="Remove"
                 >
-                  <span className="material-symbols-outlined text-[20px]">
-                    close
-                  </span>
+                  <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
               </div>
             ))}
 
             {images.length === 0 ? (
-              <div className="col-span-2 md:col-span-3 text-sm font-bold text-white/80 py-10">
+              <div className="col-span-2 md:col-span-3 text-sm muted py-10">
                 No images yet. Upload to start.
               </div>
             ) : null}
@@ -201,25 +187,25 @@ export default function NewProductPage() {
         </div>
 
         <div className="card p-6">
-          <h2 className="text-xl font-bold font-serif text-white">Details</h2>
+          <h2 className="text-xl font-bold font-serif">Details</h2>
 
           <div className="mt-6 grid gap-5">
-            <Field label="Title" value={title} onChange={setTitle} placeholder="Casual" />
-            <Field label="Category" value={category} onChange={setCategory} placeholder="Wears" />
+            <Field label="Title (optional)" value={title} onChange={setTitle} placeholder="Senator Kaftan" />
+            <Field label="Category (optional)" value={category} onChange={setCategory} placeholder="Bridal wears" />
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <NumberField label="Price (NGN)" value={price} onChange={setPrice} />
-              <NumberField label="Stock Qty" value={stockQty} onChange={setStockQty} />
+              <Field label="Price (optional)" value={price} onChange={setPrice} placeholder="50000" />
+              <Field label="Stock Qty (optional)" value={stockQty} onChange={setStockQty} placeholder="10" />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="Sizes (comma)" value={sizes} onChange={setSizes} placeholder="S, M, L" />
-              <Field label="Colors (comma)" value={colors} onChange={setColors} placeholder="Black, Wine" />
+              <Field label="Sizes (comma, optional)" value={sizes} onChange={setSizes} placeholder="S, M, L" />
+              <Field label="Colors (comma, optional)" value={colors} onChange={setColors} placeholder="Black, Wine" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
-                Description
+              <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
+                Description (optional)
               </label>
               <textarea
                 className="input"
@@ -231,26 +217,18 @@ export default function NewProductPage() {
             </div>
 
             <label className="inline-flex items-center gap-3 text-sm font-bold text-white">
-              <input
-                type="checkbox"
-                checked={inStock}
-                onChange={(e) => setInStock(e.target.checked)}
-              />
-              <span>In stock</span>
+              <input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} />
+              In stock
             </label>
 
             <button
               type="button"
               onClick={onCreate}
-              disabled={!canSave || saving}
-              className="w-full bg-[color:var(--accent)] text-white py-4 rounded-lg font-extrabold text-sm uppercase tracking-widest hover:bg-[color:var(--accent2)] disabled:opacity-60"
+              disabled={saving}
+              className="w-full btn-primary py-4 text-sm disabled:opacity-60"
             >
               {saving ? "Saving..." : "Create Product"}
             </button>
-
-            <p className="text-xs font-bold text-white/70">
-              Tip: upload images first, then create product.
-            </p>
           </div>
         </div>
       </div>
@@ -271,39 +249,10 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
+      <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
         {label}
       </label>
-      <input
-        className="input"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}
-
-function NumberField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
-        {label}
-      </label>
-      <input
-        type="number"
-        className="input"
-        value={Number.isFinite(value) ? value : 0}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
+      <input className="input" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
 }

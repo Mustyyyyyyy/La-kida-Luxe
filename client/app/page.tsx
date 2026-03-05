@@ -129,30 +129,7 @@ export default async function HomePage() {
               </span>
             </div>
           </div>
-
-          <div className="card p-3 md:p-5">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black/20 border border-white/10">
-              <Image
-                src="/placeholder-1.jpg"
-                alt="LA'KIDA showcase"
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="card p-4">
-                  <div className="text-white font-extrabold text-lg">
-                    Luxury finishing • Clean silhouette • Bold presence
-                  </div>
-                  <div className="mt-1 text-white/80 font-bold text-sm">
-                    Explore pieces curated by category.
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
       </section>
 
       <section className="py-10 px-6 lg:px-20">

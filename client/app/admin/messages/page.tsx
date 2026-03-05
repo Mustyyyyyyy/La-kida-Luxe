@@ -3,18 +3,17 @@
 import { useEffect, useState } from "react";
 import { apiFetchAuth } from "@/lib/adminApi";
 
-type ContactMsg = {
+type Msg = {
   _id: string;
-  fullName: string;
+  name?: string;
   email?: string;
   phone?: string;
-  message: string;
-  status: "new" | "replied" | "closed";
+  message?: string;
   createdAt: string;
 };
 
 export default function AdminMessagesPage() {
-  const [items, setItems] = useState<ContactMsg[]>([]);
+  const [items, setItems] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -23,9 +22,7 @@ export default function AdminMessagesPage() {
     try {
       setLoading(true);
       setErr("");
-      const data = await apiFetchAuth<ContactMsg[]>("/api/contact", {
-        method: "GET",
-      });
+      const data = await apiFetchAuth<Msg[]>("/api/contact", { method: "GET" });
       setItems(Array.isArray(data) ? data : []);
     } catch (e: any) {
       setErr(e?.message || "Failed to load messages");
@@ -38,16 +35,14 @@ export default function AdminMessagesPage() {
     load();
   }, []);
 
-  async function setStatus(id: string, status: ContactMsg["status"]) {
+  async function onDelete(id: string) {
+    if (!confirm("Delete this message?")) return;
     try {
       setBusyId(id);
-      const updated = await apiFetchAuth<ContactMsg>(`/api/contact/${id}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      });
-      setItems((prev) => prev.map((m) => (m._id === id ? updated : m)));
+      await apiFetchAuth(`/api/contact/${id}`, { method: "DELETE" });
+      setItems((prev) => prev.filter((m) => m._id !== id));
     } catch (e: any) {
-      alert(e?.message || "Status update failed");
+      alert(e?.message || "Delete failed");
     } finally {
       setBusyId(null);
     }
@@ -58,9 +53,7 @@ export default function AdminMessagesPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold font-serif">Messages</h1>
-          <p className="mt-2 text-sm muted">
-            Customer contact submissions. Mark as replied or closed.
-          </p>
+          <p className="mt-2 text-sm muted">Customer inquiries from Contact form.</p>
         </div>
 
         <button onClick={load} className="btn-outline px-4 py-2 text-xs">
@@ -74,81 +67,45 @@ export default function AdminMessagesPage() {
         </div>
       ) : null}
 
-      <div className="card p-0 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-[1100px] w-full text-sm">
-            <thead className="muted">
-              <tr className="border-b border-white/10">
-                <th className="text-left py-3 px-5">Customer</th>
-                <th className="text-left py-3 px-5">Message</th>
-                <th className="text-left py-3 px-5">Status</th>
-                <th className="text-left py-3 px-5">Actions</th>
-                <th className="text-left py-3 px-5">Date</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="py-10 px-5 muted">
-                    Loading messages...
-                  </td>
-                </tr>
-              ) : items.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-10 px-5 muted">
-                    No messages yet.
-                  </td>
-                </tr>
-              ) : (
-                items.map((m) => (
-                  <tr key={m._id} className="border-b border-white/10 align-top">
-                    <td className="py-3 px-5">
-                      <div className="font-semibold">{m.fullName}</div>
-                      <div className="text-xs muted">
-                        {m.phone || ""} {m.email ? `• ${m.email}` : ""}
-                      </div>
-                      <div className="text-xs muted mt-1">ID: {m._id.slice(-6)}</div>
-                    </td>
-
-                    <td className="py-3 px-5">
-                      <div className="text-white/90">{m.message}</div>
-                    </td>
-
-                    <td className="py-3 px-5">
-                      <span className="badge">{m.status}</span>
-                    </td>
-
-                    <td className="py-3 px-5">
-                      <div className="flex gap-2">
-                        <button
-                          disabled={busyId === m._id}
-                          onClick={() => setStatus(m._id, "replied")}
-                          className="btn-outline px-3 py-2 text-[10px] disabled:opacity-60"
-                        >
-                          {busyId === m._id ? "..." : "Mark Replied"}
-                        </button>
-
-                        <button
-                          disabled={busyId === m._id}
-                          onClick={() => setStatus(m._id, "closed")}
-                          className="px-3 py-2 rounded-lg font-bold uppercase tracking-widest text-[10px] border border-white/15 text-white/80 hover:bg-white/10 disabled:opacity-60"
-                        >
-                          {busyId === m._id ? "..." : "Close"}
-                        </button>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-5 muted">
-                      {new Date(m.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {loading ? (
+        <div className="card p-8 text-sm muted">Loading messages...</div>
+      ) : items.length === 0 ? (
+        <div className="card p-10 text-center">
+          <p className="muted">No messages yet.</p>
         </div>
-      </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((m) => (
+            <div key={m._id} className="card p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="font-bold">
+                    {m.name || "Customer"}{" "}
+                    <span className="text-xs muted">
+                      • {new Date(m.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-sm text-white/80">
+                    {m.email || "—"} {m.phone ? `• ${m.phone}` : ""}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onDelete(m._id)}
+                  disabled={busyId === m._id}
+                  className="btn-outline px-3 py-2 text-[10px] hover:bg-white/10 disabled:opacity-60"
+                >
+                  {busyId === m._id ? "Working..." : "Delete"}
+                </button>
+              </div>
+
+              <div className="mt-4 text-sm text-white/90 whitespace-pre-wrap">
+                {m.message || "—"}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
