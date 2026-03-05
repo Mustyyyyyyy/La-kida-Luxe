@@ -225,7 +225,7 @@ export default function ShopClient() {
                     return (
                       <div key={p._id} className="card overflow-hidden">
                         <Link href={`/product/${p._id}`} className="block">
-                          <div className="relative aspect-[3/4] overflow-hidden bg-black/20">
+                          <div className="relative aspect-square overflow-hidden bg-black/20">
                             <Image src={pickImage(p)} alt={p.title} fill className="object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                             {out ? (
@@ -290,7 +290,7 @@ export default function ShopClient() {
                     return (
                       <div key={p._id} className="card overflow-hidden">
                         <Link href={`/product/${p._id}`} className="block">
-                          <div className="relative aspect-[3/4] overflow-hidden bg-black/20">
+                          <div className="relative aspect-square overflow-hidden bg-black/20">
                             <Image src={pickImage(p)} alt={p.title} fill className="object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                           </div>
