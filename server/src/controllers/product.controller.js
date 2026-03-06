@@ -77,7 +77,6 @@ exports.createProduct = async (req, res) => {
   try {
     const body = req.body || {};
 
-    // ✅ do NOT force stockQty=0 if not provided
     const doc = {
       title: String(body.title || "").trim() || "Untitled Product",
       price: body.price === undefined ? 0 : Number(body.price) || 0,
@@ -89,7 +88,6 @@ exports.createProduct = async (req, res) => {
       inStock: body.inStock === undefined ? true : Boolean(body.inStock),
     };
 
-    // only add stockQty if admin supplied it
     if (body.stockQty !== undefined && body.stockQty !== "") {
       doc.stockQty = Number(body.stockQty) || 0;
     }
@@ -119,7 +117,6 @@ exports.updateProduct = async (req, res) => {
     if (body.description !== undefined) update.description = String(body.description || "").trim() || "";
     if (body.inStock !== undefined) update.inStock = body.inStock !== false;
 
-    // ✅ only set stockQty if admin sends it
     if (body.stockQty !== undefined && body.stockQty !== "") {
       update.stockQty = typeof body.stockQty === "number" ? body.stockQty : Number(body.stockQty) || 0;
     }
@@ -152,10 +149,11 @@ exports.deleteProduct = async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Product not found" });
-    res.json({ message: "Deleted" });
+
+    return res.json({ message: "Deleted" });
   } catch (e) {
     console.error(e);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Could not delete product" });
   }
 };
 

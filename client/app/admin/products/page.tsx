@@ -47,22 +47,22 @@ export default function AdminProductsPage() {
   }, []);
 
   async function onDelete(id: string) {
-    const ok = window.confirm("Delete this product? This cannot be undone.");
-    if (!ok) return;
+  if (!confirm("Delete this product?")) return;
 
-    try {
-      setBusyId(id);
-      setErr("");
+  try {
+    setBusyId(id);
 
-      await apiFetchAuth(`/api/products/${id}`, { method: "DELETE" });
+    await apiFetchAuth(`/api/products/${id}`, {
+      method: "DELETE",
+    });
 
-      setItems((prev) => prev.filter((p) => p._id !== id));
-    } catch (e: any) {
-      setErr(e?.message || "Delete failed");
-    } finally {
-      setBusyId(null);
-    }
+    setItems((prev) => prev.filter((x) => x._id !== id));
+  } catch (e: any) {
+    alert(e?.message || "Delete failed");
+  } finally {
+    setBusyId(null);
   }
+}
 
   return (
     <div className="space-y-8">
