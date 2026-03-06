@@ -1,45 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { apiFetchAuth } from "@/lib/adminApi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import BrandLogo from "@/components/BrandLogo";
 
-type Order = {
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+const CART_KEY = "lakida_cart";
+
+type Product = {
   _id: string;
-  orderCode: string;
-  status:
-    | "pending_whatsapp"
-    | "confirmed"
-    | "in_progress"
-    | "ready"
-    | "delivered"
-    | "cancelled";
-  total: number;
-  subtotal?: number;
-  deliveryFee?: number;
-  createdAt: string;
-  customer?: { fullName?: string; phone?: string; email?: string };
-  delivery?: { address?: string; city?: string; state?: string; method?: string };
-  items?: { title: string; price: number; qty: number; size?: string; color?: string }[];
-  isCustom?: boolean;
-  custom?: {
-    styleType?: string;
-    fabric?: string;
-    specialInstructions?: string;
-    measurements?: Record<string, string>;
-    referenceImages?: string[];
-  };
+  title: string;
+  category?: string;
+  price: number;
+  description?: string;
+  images?: { url: string; publicId: string }[];
+  sizes?: string[];
+  colors?: string[];
+  inStock?: boolean;
+  stockQty?: number;
 };
 
-const STATUSES: Order["status"][] = [
-  "pending_whatsapp",
-  "confirmed",
-  "in_progress",
-  "ready",
-  "delivered",
-  "cancelled",
-];
+type CartItem = {
+  productId: string;
+  title: string;
+  price: number;
+  image: string;
+  qty: number;
+  size?: string;
+  color?: string;
+};
 
 function formatNaira(amount: number) {
   return new Intl.NumberFormat("en-NG", {
@@ -49,194 +39,529 @@ function formatNaira(amount: number) {
   }).format(amount || 0);
 }
 
-export default function AdminOrderDetailsPage() {
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCart(items: CartItem[]) {
+  localStorage.setItem(CART_KEY, JSON.stringify(items));
+}
+
+export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
+  const router = useRouter();
 
-  const [order, setOrder] = useState<Order | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
+
+  const [selectedImg, setSelectedImg] = useState<string>("/placeholder-1.jpg");
+
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
 
-  async function load() {
-    if (!id) return;
-    try {
-      setLoading(true);
-      setErr("");
-      const all = await apiFetchAuth<Order[]>("/api/orders", { method: "GET" });
-      const found = all.find((o) => o._id === id) || null;
-      setOrder(found);
-      if (!found) setErr("Order not found.");
-    } catch (e: any) {
-      setErr(e?.message || "Failed to load order");
-    } finally {
-      setLoading(false);
+  const [qty, setQty] = useState(1);
+  const [size, setSize] = useState("");
+  const [color, setColor] = useState("");
+
+  const [toast, setToast] = useState("");
+  const [notifyLoading, setNotifyLoading] = useState(false);
+
+  const images = useMemo(() => product?.images || [], [product]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function run() {
+      try {
+        setLoading(true);
+        setErr("");
+
+        const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data?.message || "Failed to load product.");
+
+        if (!mounted) return;
+        setProduct(data);
+
+        const first = data?.images?.[0]?.url || "/placeholder-1.jpg";
+        setSelectedImg(first);
+
+        if (data?.sizes?.length) setSize(data.sizes[0]);
+        if (data?.colors?.length) setColor(data.colors[0]);
+      } catch (e: any) {
+        if (!mounted) return;
+        setErr(e?.message || "Failed to load product");
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
+
+    if (id) run();
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  const outOfStock = useMemo(() => {
+    if (!product) return false;
+    const qtyNum = Number(product.stockQty ?? 0);
+    return product.inStock === false || qtyNum <= 0;
+  }, [product]);
+
+  function showToast(text: string) {
+    setToast(text);
+    window.clearTimeout((showToast as any)._t);
+    (showToast as any)._t = window.setTimeout(() => setToast(""), 1600);
+  }
+
+  function openViewerByUrl(url: string) {
+    if (!images.length) return;
+
+    const idx = images.findIndex((x) => x.url === url);
+    const safeIdx = idx >= 0 ? idx : 0;
+
+    setViewerIndex(safeIdx);
+    setViewerOpen(true);
+  }
+
+  function closeViewer() {
+    setViewerOpen(false);
+  }
+
+  function nextImg() {
+    if (!images.length) return;
+    setViewerIndex((i) => (i + 1) % images.length);
+  }
+
+  function prevImg() {
+    if (!images.length) return;
+    setViewerIndex((i) => (i - 1 + images.length) % images.length);
   }
 
   useEffect(() => {
-    load();
-  }, [id]);
+    if (!viewerOpen) return;
 
-  async function updateStatus(status: Order["status"]) {
-    if (!order) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closeViewer();
+      if (e.key === "ArrowRight") nextImg();
+      if (e.key === "ArrowLeft") prevImg();
+    }
+
+    window.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [viewerOpen, images.length]);
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  }
+
+  function onTouchEnd(e: React.TouchEvent) {
+    const start = touchStartX.current;
+    const end = e.changedTouches[0]?.clientX ?? null;
+    touchStartX.current = null;
+
+    if (start == null || end == null) return;
+    const dx = end - start;
+
+    if (Math.abs(dx) < 50) return;
+
+    if (dx < 0) nextImg();
+    else prevImg();
+  }
+
+  const viewerUrl = images[viewerIndex]?.url || selectedImg || "/placeholder-1.jpg";
+
+  function addToCartNow() {
+    if (!product) return;
+    if (outOfStock) return showToast("Out of stock");
+
+    const cart = loadCart();
+    const idx = cart.findIndex(
+      (x) => x.productId === product._id && x.size === size && x.color === color
+    );
+
+    const item: CartItem = {
+      productId: product._id,
+      title: product.title,
+      price: product.price,
+      image: selectedImg || "/placeholder-1.jpg",
+      qty: Math.max(1, qty),
+      size: size || "",
+      color: color || "",
+    };
+
+    if (idx >= 0) cart[idx].qty += item.qty;
+    else cart.push(item);
+
+    saveCart(cart);
+    showToast("Added to cart");
+  }
+
+  async function notifyMe() {
+    if (!product) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    setNotifyLoading(true);
     try {
-      setBusy(true);
-      const updated = await apiFetchAuth<Order>(`/api/orders/${order._id}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
+      const res = await fetch(`${API_URL}/api/stock-alerts/${product._id}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setOrder(updated);
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Could not subscribe");
+
+      showToast(data?.message || "Saved! We’ll email you when it’s back.");
     } catch (e: any) {
-      alert(e?.message || "Status update failed");
+      showToast(e?.message || "Notify failed");
     } finally {
-      setBusy(false);
+      setNotifyLoading(false);
     }
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif">Order Details</h1>
-          <p className="mt-2 text-sm muted">View customer info, items and update status.</p>
+    <main className="page">
+      <header className="sticky top-0 z-40 topbar px-4 sm:px-6 lg:px-20 py-4 flex items-center justify-between gap-3">
+        <BrandLogo size={54} />
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link href="/shop" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
+            Shop
+          </Link>
+          <Link href="/cart" className="btn-primary px-4 py-2 text-xs hover:brightness-110">
+            Cart
+          </Link>
         </div>
+      </header>
 
-        <Link href="/admin/orders" className="btn-outline px-4 py-2 text-xs">
-          Back
-        </Link>
-      </div>
-
-      {loading ? (
-        <div className="card p-8 text-sm muted">Loading...</div>
-      ) : err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200">
-          {err}
-        </div>
-      ) : order ? (
-        <div className="grid lg:grid-cols-2 gap-8">
-          <div className="card p-6 space-y-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs uppercase tracking-[0.2em] muted">Order</div>
-                <div className="text-2xl font-bold font-serif">{order.orderCode}</div>
+      <section className="px-4 sm:px-6 lg:px-20 py-10">
+        <div className="max-w-[1200px] mx-auto">
+          {loading ? (
+            <div className="card p-8 text-sm font-bold text-white/80">Loading product...</div>
+          ) : err ? (
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-sm font-bold text-red-200">
+              {err}
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push("/shop")}
+                  className="btn-primary px-6 py-3 text-xs hover:brightness-110"
+                  type="button"
+                >
+                  Back to Shop
+                </button>
               </div>
-
-              <span className="badge">{order.status}</span>
             </div>
+          ) : product ? (
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-10">
+              <div className="space-y-4">
+                <button
+                  type="button"
+                  onClick={() => openViewerByUrl(selectedImg)}
+                  className="w-full rounded-2xl overflow-hidden border border-white/10 bg-black/20 block"
+                  aria-label="Open image viewer"
+                >
+                  <img
+                    src={selectedImg || "/placeholder-1.jpg"}
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Info label="Customer" value={order.customer?.fullName || "—"} />
-              <Info label="Phone" value={order.customer?.phone || "—"} />
-              <Info label="Email" value={order.customer?.email || "—"} />
-              <Info label="Date" value={new Date(order.createdAt).toLocaleString()} />
-            </div>
-
-            <div className="grid sm:grid-cols-2 gap-4">
-              <Info label="Delivery Method" value={order.delivery?.method || "standard"} />
-              <Info
-                label="Address"
-                value={
-                  order.delivery?.address
-                    ? `${order.delivery.address}${
-                        order.delivery.city ? `, ${order.delivery.city}` : ""
-                      }${order.delivery.state ? `, ${order.delivery.state}` : ""}`
-                    : "—"
-                }
-              />
-            </div>
-
-            <div className="pt-2">
-              <div className="text-xs uppercase tracking-[0.2em] muted">Update status</div>
-
-              <select
-                value={order.status}
-                onChange={(e) => updateStatus(e.target.value as Order["status"])}
-                disabled={busy}
-                className="mt-2 w-full bg-[rgba(255,255,255,0.06)] border border-[rgba(242,208,13,0.20)] rounded-lg px-3 py-3 text-white disabled:opacity-60"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s} className="bg-[#14001f]">
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="card p-6">
-            <h2 className="text-xl font-bold font-serif">Items / Custom</h2>
-
-            {order.isCustom ? (
-              <div className="mt-4 space-y-3 text-sm">
-                <Info label="Custom" value="Yes" />
-                <Info label="Style Type" value={order.custom?.styleType || "—"} />
-                <Info label="Fabric" value={order.custom?.fabric || "—"} />
-                <Info label="Instructions" value={order.custom?.specialInstructions || "—"} />
-
-                <div className="mt-4">
-                  <div className="text-xs uppercase tracking-[0.2em] muted">
-                    Measurements
+                {images.length ? (
+                  <div className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {images.map((img) => {
+                      const active = selectedImg === img.url;
+                      return (
+                        <button
+                          key={img.publicId}
+                          type="button"
+                          onClick={() => {
+                            setSelectedImg(img.url);
+                            openViewerByUrl(img.url);
+                          }}
+                          className={[
+                            "w-20 h-20 rounded-xl overflow-hidden border bg-black/20 flex-shrink-0",
+                            active ? "border-[color:var(--accent)]" : "border-white/10",
+                          ].join(" ")}
+                          aria-label="View image"
+                          title="View image"
+                        >
+                          <img src={img.url} alt={product.title} className="w-full h-full object-cover" />
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="mt-2 rounded-xl border border-white/10 bg-[rgba(255,255,255,0.04)] p-4 text-sm">
-                    {order.custom?.measurements
-                      ? Object.entries(order.custom.measurements).map(([k, v]) => (
-                          <div key={k} className="flex justify-between py-1">
-                            <span className="muted">{k}</span>
-                            <span className="font-semibold">{v}</span>
-                          </div>
-                        ))
-                      : "—"}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="mt-4 space-y-3">
-                {(order.items || []).map((it, idx) => (
-                  <div key={idx} className="card-soft p-4">
-                    <div className="font-semibold">{it.title}</div>
-                    <div className="text-xs muted mt-1">
-                      Qty: {it.qty} • {it.size ? `Size: ${it.size}` : "Size: —"} •{" "}
-                      {it.color ? `Color: ${it.color}` : "Color: —"}
-                    </div>
-                    <div className="mt-2 font-bold text-[color:var(--accent)]">
-                      {formatNaira(it.price)}
-                    </div>
-                  </div>
-                ))}
-
-                {(order.items || []).length === 0 ? (
-                  <div className="text-sm muted">No items on this order.</div>
                 ) : null}
               </div>
-            )}
 
-            <div className="mt-6 rounded-xl border border-white/10 bg-[rgba(255,255,255,0.04)] p-4">
-              <div className="flex justify-between text-sm">
-                <span className="muted">Subtotal</span>
-                <span className="font-semibold">{formatNaira(order.subtotal || 0)}</span>
+              <div className="card p-6 sm:p-7 md:p-10">
+                <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--accent)] font-extrabold">
+                  {product.category || "General"}
+                </p>
+
+                <h1 className="mt-2 text-3xl md:text-4xl font-extrabold font-serif text-white">
+                  {product.title}
+                </h1>
+
+                <p className="mt-4 text-2xl font-extrabold text-white">{formatNaira(product.price)}</p>
+
+                <div className="mt-4">
+                  <span
+                    className={[
+                      "inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold border border-white/15",
+                      outOfStock ? "bg-red-500/15 text-red-200" : "bg-white/10 text-white",
+                    ].join(" ")}
+                  >
+                    {outOfStock ? "Out of stock" : "Available"}
+                  </span>
+
+                  {typeof product.stockQty === "number" ? (
+                    <span className="ml-3 text-xs text-white/80 font-bold">Stock: {product.stockQty}</span>
+                  ) : null}
+                </div>
+
+                <p className="mt-6 text-white/85 font-bold leading-relaxed">
+                  {product.description || "Premium finishing and a timeless silhouette."}
+                </p>
+
+                <div className="mt-7 grid sm:grid-cols-2 gap-4">
+                  <Select
+                    label="Size"
+                    value={size}
+                    onChange={setSize}
+                    options={
+                      product.sizes?.length
+                        ? product.sizes.map((s) => ({ value: s, label: s }))
+                        : [{ value: "", label: "—" }]
+                    }
+                  />
+                  <Select
+                    label="Color"
+                    value={color}
+                    onChange={setColor}
+                    options={
+                      product.colors?.length
+                        ? product.colors.map((c) => ({ value: c, label: c }))
+                        : [{ value: "", label: "—" }]
+                    }
+                  />
+                </div>
+
+                <div className="mt-5">
+                  <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
+                    Quantity
+                  </label>
+                  <div className="mt-2 inline-flex items-center gap-2">
+                    <button
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-extrabold text-white"
+                      disabled={outOfStock}
+                      type="button"
+                    >
+                      −
+                    </button>
+                    <div className="w-12 text-center font-extrabold text-white">{qty}</div>
+                    <button
+                      onClick={() => setQty((q) => q + 1)}
+                      className="w-10 h-10 rounded-lg border border-white/15 hover:bg-white/10 font-extrabold text-white"
+                      disabled={outOfStock}
+                      type="button"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {outOfStock ? (
+                  <div className="mt-8 space-y-3">
+                    <button
+                      onClick={notifyMe}
+                      disabled={notifyLoading}
+                      className="btn-outline w-full py-4 text-sm hover:bg-white/10 disabled:opacity-60"
+                      type="button"
+                    >
+                      {notifyLoading ? "Saving..." : "Notify me when back in stock"}
+                    </button>
+
+                    <Link
+                      href="/custom-order"
+                      className="btn-primary w-full py-4 text-sm hover:brightness-110 text-center mt-7"
+                    >
+                      Request Custom
+                    </Link>
+
+                    <p className="text-xs text-white/75 font-bold mt-7">
+                      We’ll email you when this item is available again.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-8 grid sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={addToCartNow}
+                      className="btn-primary py-4 text-sm hover:brightness-110"
+                      type="button"
+                    >
+                      Add to Cart
+                    </button>
+
+                    <Link href="/custom-order" className="btn-outline py-4 text-sm hover:bg-white/10 text-center">
+                      Request Custom
+                    </Link>
+                  </div>
+                )}
               </div>
-              <div className="flex justify-between text-sm mt-2">
-                <span className="muted">Delivery</span>
-                <span className="font-semibold">{formatNaira(order.deliveryFee || 0)}</span>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      {viewerOpen ? (
+        <div className="fixed inset-0 z-[999] bg-black/90">
+          <button
+            type="button"
+            className="absolute inset-0"
+            onClick={closeViewer}
+            aria-label="Close viewer"
+          />
+
+          <div className="absolute inset-0 flex items-center justify-center px-3 sm:px-6">
+            <div className="relative w-full max-w-5xl">
+              <div className="absolute -top-14 left-0 right-0 flex items-center justify-between text-white">
+                <div className="text-sm font-bold">
+                  {images.length ? `${viewerIndex + 1} / ${images.length}` : ""}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeViewer}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 hover:bg-white/15 font-bold"
+                >
+                  <span className="material-symbols-outlined text-base">close</span>
+                  Close
+                </button>
               </div>
-              <div className="flex justify-between mt-3 text-base font-bold">
-                <span>Total</span>
-                <span className="text-[color:var(--accent)]">{formatNaira(order.total || 0)}</span>
+
+              <div
+                className="relative w-full max-h-[85vh] rounded-2xl overflow-hidden border border-white/10 bg-black"
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+              >
+                <img
+                  src={viewerUrl}
+                  alt="Preview"
+                  className="w-full h-full object-contain max-h-[85vh] select-none"
+                  draggable={false}
+                />
+
+                {images.length > 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevImg();
+                      }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 border border-white/15 hover:bg-white/15 text-white flex items-center justify-center"
+                      aria-label="Previous image"
+                    >
+                      <span className="material-symbols-outlined">chevron_left</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextImg();
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 border border-white/15 hover:bg-white/15 text-white flex items-center justify-center"
+                      aria-label="Next image"
+                    >
+                      <span className="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  </>
+                ) : null}
               </div>
+
+              {images.length > 1 ? (
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {images.map((img, idx) => {
+                    const active = idx === viewerIndex;
+                    return (
+                      <button
+                        key={img.publicId}
+                        type="button"
+                        onClick={() => setViewerIndex(idx)}
+                        className={[
+                          "w-16 h-16 rounded-xl overflow-hidden border flex-shrink-0 bg-black/40",
+                          active ? "border-white" : "border-white/20",
+                        ].join(" ")}
+                        aria-label="Select image"
+                      >
+                        <img src={img.url} alt="thumb" className="w-full h-full object-cover" />
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
       ) : null}
-    </div>
+
+      {toast ? (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50">
+          <div className="rounded-full border border-white/10 bg-[rgba(18,0,24,0.9)] text-white px-5 py-2 text-sm font-bold shadow-xl">
+            {toast}
+          </div>
+        </div>
+      ) : null}
+    </main>
   );
 }
 
-function Info({ label, value }: { label: string; value: string }) {
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
   return (
-    <div className="card-soft p-4">
-      <div className="text-xs uppercase tracking-[0.2em] muted">{label}</div>
-      <div className="mt-1 font-semibold text-white/90">{value}</div>
+    <div className="space-y-2">
+      <label className="text-xs font-extrabold uppercase tracking-widest text-[color:var(--accent)]">
+        {label}
+      </label>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="input font-bold">
+        {options.map((o) => (
+          <option key={o.value} value={o.value} className="bg-[#120018]">
+            {o.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

@@ -52,6 +52,11 @@ function saveCart(items: CartItem[]) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 }
 
+function isOutOfStock(p: Product) {
+  if (typeof p.stockQty === "number") return p.stockQty <= 0;
+  return p.inStock === false;
+}
+
 export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id;
@@ -67,6 +72,8 @@ export default function ProductDetailsPage() {
   const [toast, setToast] = useState("");
 
   const [notifyLoading, setNotifyLoading] = useState(false);
+
+  const [activeImage, setActiveImage] = useState<string>("");
 
   useEffect(() => {
     let mounted = true;
@@ -86,6 +93,9 @@ export default function ProductDetailsPage() {
 
         if (data?.sizes?.length) setSize(data.sizes[0]);
         if (data?.colors?.length) setColor(data.colors[0]);
+
+        const first = data?.images?.[0]?.url || "/placeholder-1.jpg";
+        setActiveImage(first);
       } catch (e: any) {
         if (!mounted) return;
         setErr(e?.message || "Failed to load product");
@@ -100,18 +110,13 @@ export default function ProductDetailsPage() {
     };
   }, [id]);
 
-  const mainImage = useMemo(
-    () => product?.images?.[0]?.url || "/placeholder-1.jpg",
-    [product]
-  );
+  const mainImage = useMemo(() => {
+    return activeImage || product?.images?.[0]?.url || "/placeholder-1.jpg";
+  }, [activeImage, product]);
 
   const outOfStock = useMemo(() => {
     if (!product) return false;
-    const qty = Number(product.stockQty);
-    const qtyKnown = Number.isFinite(qty);
-    const noQty = qtyKnown ? qty <= 0 : false;
-
-    return product.inStock === false || noQty;
+    return isOutOfStock(product);
   }, [product]);
 
   function showToast(text: string) {
@@ -216,14 +221,23 @@ export default function ProductDetailsPage() {
 
                 {product.images?.length ? (
                   <div className="flex gap-3 overflow-x-auto pb-2">
-                    {product.images.map((img) => (
-                      <div
-                        key={img.publicId}
-                        className="w-20 h-24 rounded-xl overflow-hidden border border-white/10 bg-black/20 flex-shrink-0"
-                      >
-                        <img src={img.url} alt={product.title} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
+                    {product.images.map((img) => {
+                      const active = img.url === mainImage;
+                      return (
+                        <button
+                          key={img.publicId}
+                          type="button"
+                          onClick={() => setActiveImage(img.url)}
+                          className={[
+                            "w-20 h-24 rounded-xl overflow-hidden border bg-black/20 flex-shrink-0",
+                            active ? "border-white" : "border-white/10",
+                          ].join(" ")}
+                          aria-label="View image"
+                        >
+                          <img src={img.url} alt={product.title} className="w-full h-full object-cover" />
+                        </button>
+                      );
+                    })}
                   </div>
                 ) : null}
               </div>
@@ -233,9 +247,7 @@ export default function ProductDetailsPage() {
                   {product.category || "General"}
                 </p>
 
-                <h1 className="mt-2 text-3xl md:text-4xl font-bold font-serif">
-                  {product.title}
-                </h1>
+                <h1 className="mt-2 text-3xl md:text-4xl font-bold font-serif">{product.title}</h1>
 
                 <p className="mt-4 text-2xl font-bold text-[color:var(--accent)]">
                   {formatNaira(product.price)}

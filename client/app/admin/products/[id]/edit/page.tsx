@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiFetchAuth } from "@/lib/adminApi";
+import { apiFetchAuth, getApiUrl } from "@/lib/adminApi";
 
 type Product = {
   _id: string;
@@ -17,7 +17,14 @@ type Product = {
   colors?: string[];
 };
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+const CATEGORY_OPTIONS = [
+  "Bridal wears",
+  "Aso ebi",
+  "Corporate fits",
+  "Casual wears",
+  "Birthday dress",
+  "General",
+];
 
 function toList(v: string) {
   return v
@@ -29,7 +36,7 @@ function toList(v: string) {
 export default function AdminEditProductPage() {
   const params = useParams();
   const rawId = (params as any)?.id;
-  const id = Array.isArray(rawId) ? rawId[0] : rawId; 
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,9 +54,7 @@ export default function AdminEditProductPage() {
   const [sizesCsv, setSizesCsv] = useState("");
   const [colorsCsv, setColorsCsv] = useState("");
 
-  const canSave = useMemo(() => {
-    return title.trim().length >= 2 && Number(price) >= 0;
-  }, [title, price]);
+  const canSave = useMemo(() => title.trim().length >= 2 && Number(price) >= 0, [title, price]);
 
   useEffect(() => {
     let mounted = true;
@@ -62,7 +67,7 @@ export default function AdminEditProductPage() {
         setErr("");
         setOk("");
 
-        const res = await fetch(`${API_URL}/api/products/${id}`, { cache: "no-store" });
+        const res = await fetch(`${getApiUrl()}/api/products/${id}`, { cache: "no-store" });
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
@@ -135,8 +140,10 @@ export default function AdminEditProductPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-serif">Edit Product</h1>
-          <p className="mt-2 text-sm muted">Update product details.</p>
+          <h1 className="text-3xl md:text-4xl font-bold font-serif text-white">
+            Edit Product
+          </h1>
+          <p className="mt-2 text-sm text-white/80 font-bold">Update product details.</p>
         </div>
 
         <Link href="/admin/products" className="btn-outline px-4 py-2 text-xs hover:bg-white/10">
@@ -145,24 +152,31 @@ export default function AdminEditProductPage() {
       </div>
 
       {loading ? (
-        <div className="card p-8 text-sm muted">Loading...</div>
+        <div className="card p-8 text-sm text-white/80 font-bold">Loading...</div>
       ) : err ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200">
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-200 font-bold">
           {err}
-          <div className="mt-2 text-xs text-white/60">
+          <div className="mt-2 text-xs text-white/70">
             Debug: id = <b>{String(id)}</b>
           </div>
         </div>
       ) : (
         <div className="card p-6 max-w-3xl">
           {ok ? (
-            <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200">
+            <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-200 font-bold">
               {ok}
+            </div>
+          ) : null}
+
+          {err ? (
+            <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 font-bold">
+              {err}
             </div>
           ) : null}
 
           <div className="grid md:grid-cols-2 gap-4">
             <Field label="Title" value={title} onChange={setTitle} placeholder="Kaftan..." />
+
             <Field
               label="Price (NGN)"
               type="number"
@@ -170,7 +184,25 @@ export default function AdminEditProductPage() {
               onChange={(v) => setPrice(Number(v))}
               placeholder="50000"
             />
-            <Field label="Category" value={category} onChange={setCategory} placeholder="Kaftans" />
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
+                Category
+              </label>
+              <input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="input font-bold"
+                placeholder="Choose or type…"
+                list="lakida-cats-edit"
+              />
+              <datalist id="lakida-cats-edit">
+                {CATEGORY_OPTIONS.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
+            </div>
+
             <Field
               label="Stock Qty"
               type="number"
@@ -194,8 +226,18 @@ export default function AdminEditProductPage() {
           </div>
 
           <div className="mt-4 grid md:grid-cols-2 gap-4">
-            <Field label="Sizes (comma separated)" value={sizesCsv} onChange={setSizesCsv} placeholder="S, M, L, XL" />
-            <Field label="Colors (comma separated)" value={colorsCsv} onChange={setColorsCsv} placeholder="Black, Purple, White" />
+            <Field
+              label="Sizes (comma separated)"
+              value={sizesCsv}
+              onChange={setSizesCsv}
+              placeholder="S, M, L, XL"
+            />
+            <Field
+              label="Colors (comma separated)"
+              value={colorsCsv}
+              onChange={setColorsCsv}
+              placeholder="Black, Purple, White"
+            />
           </div>
 
           <div className="mt-5 flex items-center gap-3">
@@ -206,7 +248,7 @@ export default function AdminEditProductPage() {
               onChange={(e) => setInStock(e.target.checked)}
               className="h-4 w-4"
             />
-            <label htmlFor="inStock" className="text-sm text-white/80">
+            <label htmlFor="inStock" className="text-sm text-white font-bold">
               In Stock
             </label>
           </div>
@@ -250,7 +292,7 @@ function Field({
       </label>
       <input
         type={type}
-        className="input"
+        className="input font-bold"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

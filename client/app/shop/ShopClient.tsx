@@ -22,24 +22,36 @@ type CartItem = { productId: string; title: string; price: number; image: string
 
 const CART_KEY = "lakida_cart";
 
-const CATEGORY_ORDER = ["Bridal wears", "Aso ebi", "Corporate fits", "Casual wears", "Birthday dress"];
+const CATEGORY_ORDER = [
+  "Bridal wears",
+  "Aso ebi",
+  "Corporate fits",
+  "Casual wears",
+  "Birthday dress",
+];
 
 function formatNaira(amount: number) {
-  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(amount || 0);
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    maximumFractionDigits: 0,
+  }).format(amount || 0);
 }
+
 function pickImage(p: Product) {
   return p.images?.[0]?.url || "/placeholder-1.jpg";
 }
+
 function normalizeCategory(c?: string) {
   const v = (c || "").trim();
   return v || "Uncategorized";
 }
+
 function isOutOfStock(p: Product) {
-  if (p.inStock === false) return true;
-  if (p.inStock === true) return false;
   if (typeof p.stockQty === "number") return p.stockQty <= 0;
-  return false;
+  return p.inStock === false;
 }
+
 function loadCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(CART_KEY);
@@ -48,9 +60,11 @@ function loadCart(): CartItem[] {
     return [];
   }
 }
+
 function saveCart(items: CartItem[]) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 }
+
 function addToCart(p: Product) {
   if (isOutOfStock(p)) return;
 
@@ -83,6 +97,7 @@ export default function ShopClient() {
 
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       try {
         setLoading(true);
@@ -97,6 +112,7 @@ export default function ShopClient() {
         if (mounted) setLoading(false);
       }
     })();
+
     return () => {
       mounted = false;
     };
@@ -111,6 +127,7 @@ export default function ShopClient() {
   const filteredBySearch = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return products;
+
     return products.filter((p) => {
       const hay = `${p.title} ${p.category || ""} ${p.description || ""}`.toLowerCase();
       return hay.includes(q);
@@ -124,6 +141,7 @@ export default function ShopClient() {
 
   const grouped = useMemo(() => {
     const map = new Map<string, Product[]>();
+
     for (const p of filteredBySearch) {
       const cat = normalizeCategory(p.category);
       if (!map.has(cat)) map.set(cat, []);
@@ -131,7 +149,10 @@ export default function ShopClient() {
     }
 
     const known = CATEGORY_ORDER.filter((c) => map.has(c));
-    const rest = Array.from(map.keys()).filter((c) => !CATEGORY_ORDER.includes(c)).sort((a, b) => a.localeCompare(b));
+    const rest = Array.from(map.keys())
+      .filter((c) => !CATEGORY_ORDER.includes(c))
+      .sort((a, b) => a.localeCompare(b));
+
     const orderedCats = [...known, ...rest];
 
     return orderedCats.map((cat) => ({ category: cat, items: map.get(cat) || [] }));
@@ -141,6 +162,7 @@ export default function ShopClient() {
 
   function pickCategory(cat: string) {
     setActiveCategory(cat);
+
     if (cat === "All") router.push("/shop");
     else router.push(`/shop?category=${encodeURIComponent(cat)}`);
 
@@ -155,6 +177,55 @@ export default function ShopClient() {
     if (activeCategory === "All") return grouped;
     return grouped.filter((g) => g.category === activeCategory);
   }, [grouped, activeCategory]);
+
+  function ProductCard({ p }: { p: Product }) {
+    const out = isOutOfStock(p);
+
+    return (
+      <div className="card overflow-hidden">
+        <Link href={`/product/${p._id}`} className="block">
+          <div className="relative aspect-square overflow-hidden bg-black/20">
+            <Image src={pickImage(p)} alt={p.title} fill className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+
+            {out ? (
+              <div className="absolute top-3 left-3 rounded-full bg-red-500/25 border border-red-500/30 px-3 py-1 text-[10px] font-extrabold text-red-100 uppercase tracking-widest">
+                Out of stock
+              </div>
+            ) : null}
+          </div>
+        </Link>
+
+        <div className="p-4">
+          <h3 className="text-sm md:text-lg font-extrabold text-white leading-snug">{p.title}</h3>
+          <p className="mt-2 text-white font-extrabold">{formatNaira(p.price)}</p>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {out ? (
+              <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
+                View
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  addToCart(p);
+                  showToast("Added to cart");
+                }}
+                className="btn-primary py-3 text-[11px]"
+              >
+                Add
+              </button>
+            )}
+
+            <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
+              Details
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="page">
@@ -218,53 +289,13 @@ export default function ShopClient() {
               </div>
             ) : (
               <div className="space-y-4">
-                <h2 className="text-2xl font-extrabold font-serif text-[color:var(--accent)]">Search Results</h2>
+                <h2 className="text-2xl font-extrabold font-serif text-[color:var(--accent)]">
+                  Search Results
+                </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-7">
-                  {searchResults.map((p) => {
-                    const out = isOutOfStock(p);
-                    return (
-                      <div key={p._id} className="card overflow-hidden">
-                        <Link href={`/product/${p._id}`} className="block">
-                          <div className="relative aspect-square overflow-hidden bg-black/20">
-                            <Image src={pickImage(p)} alt={p.title} fill className="object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                            {out ? (
-                              <div className="absolute top-3 left-3 rounded-full bg-red-500/25 border border-red-500/30 px-3 py-1 text-[10px] font-extrabold text-red-100 uppercase tracking-widest">
-                                Out of stock
-                              </div>
-                            ) : null}
-                          </div>
-                        </Link>
-
-                        <div className="p-4">
-                          <h3 className="text-sm md:text-lg font-extrabold text-white leading-snug">{p.title}</h3>
-                          <p className="mt-2 text-white font-extrabold">{formatNaira(p.price)}</p>
-
-                          <div className="mt-3 grid grid-cols-2 gap-2">
-                            {out ? (
-                              <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
-                                View
-                              </Link>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  addToCart(p);
-                                  showToast("Added to cart");
-                                }}
-                                className="btn-primary py-3 text-[11px]"
-                              >
-                                Add
-                              </button>
-                            )}
-                            <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
-                              Details
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {searchResults.map((p) => (
+                    <ProductCard key={p._id} p={p} />
+                  ))}
                 </div>
               </div>
             )
@@ -278,53 +309,18 @@ export default function ShopClient() {
                 className="space-y-4 scroll-mt-28"
               >
                 <div className="flex items-end justify-between gap-4">
-                  <h2 className="text-2xl md:text-3xl font-extrabold font-serif text-[color:var(--accent)]">{category}</h2>
+                  <h2 className="text-2xl md:text-3xl font-extrabold font-serif text-[color:var(--accent)]">
+                    {category}
+                  </h2>
                   <span className="text-sm font-bold text-[rgba(43,0,70,0.75)]">
                     {items.length} item{items.length === 1 ? "" : "s"}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-7">
-                  {items.map((p) => {
-                    const out = isOutOfStock(p);
-                    return (
-                      <div key={p._id} className="card overflow-hidden">
-                        <Link href={`/product/${p._id}`} className="block">
-                          <div className="relative aspect-square overflow-hidden bg-black/20">
-                            <Image src={pickImage(p)} alt={p.title} fill className="object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                          </div>
-                        </Link>
-
-                        <div className="p-4">
-                          <h3 className="text-sm md:text-lg font-extrabold text-white leading-snug">{p.title}</h3>
-                          <p className="mt-2 text-white font-extrabold">{formatNaira(p.price)}</p>
-
-                          <div className="mt-3 grid grid-cols-2 gap-2">
-                            {out ? (
-                              <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
-                                View
-                              </Link>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  addToCart(p);
-                                  showToast("Added to cart");
-                                }}
-                                className="btn-primary py-3 text-[11px]"
-                              >
-                                Add
-                              </button>
-                            )}
-                            <Link href={`/product/${p._id}`} className="btn-outline py-3 text-[11px] text-center">
-                              Details
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {items.map((p) => (
+                    <ProductCard key={p._id} p={p} />
+                  ))}
                 </div>
               </div>
             ))

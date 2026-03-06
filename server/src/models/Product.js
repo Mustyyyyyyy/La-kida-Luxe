@@ -10,9 +10,12 @@ const ProductImageSchema = new mongoose.Schema(
 
 const ProductSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true, trim: true },
-    category: { type: String, default: "General" }, // Kaftan, Gown, Agbada...
-    price: { type: Number, required: true },
+    title: { type: String, trim: true, default: "Untitled Product" },
+
+    category: { type: String, default: "General" },
+
+    price: { type: Number, default: 0 },
+
     description: { type: String, default: "" },
 
     images: { type: [ProductImageSchema], default: [] },
@@ -21,9 +24,17 @@ const ProductSchema = new mongoose.Schema(
     colors: { type: [String], default: [] },
 
     inStock: { type: Boolean, default: true },
-    stockQty: { type: Number, default: 0 },
+
+    stockQty: { type: Number, default: null },
   },
   { timestamps: true }
 );
+
+ProductSchema.pre("save", function (next) {
+  if (typeof this.stockQty === "number") {
+    this.inStock = this.stockQty > 0;
+  }
+  next();
+});
 
 module.exports = mongoose.model("Product", ProductSchema);

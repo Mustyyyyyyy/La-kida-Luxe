@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { apiFetchAuth, getApiUrl, getToken } from "@/lib/adminApi";
 
 type UploadedImage = {
@@ -22,9 +22,10 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function NewProductPage() {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("General");
-
   const [price, setPrice] = useState<string>("");
   const [description, setDescription] = useState("");
   const [sizes, setSizes] = useState("");
@@ -50,6 +51,7 @@ export default function NewProductPage() {
     try {
       const token = getToken();
       const fd = new FormData();
+
       Array.from(files).forEach((f) => fd.append("images", f));
 
       const res = await fetch(`${getApiUrl()}/api/upload/product-images`, {
@@ -69,16 +71,25 @@ export default function NewProductPage() {
         return Array.from(map.values());
       });
 
-      setMsg({ type: "ok", text: `Uploaded ${uploaded.length} image(s).` });
+      setMsg({
+        type: "ok",
+        text: uploaded.length
+          ? `Uploaded ${uploaded.length} image(s).`
+          : "Upload done (no images returned).",
+      });
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Upload error" });
     } finally {
       setUploading(false);
+
+      if (fileRef.current) fileRef.current.value = "";
     }
   }
 
   function removeImage(publicId: string) {
     setImages((prev) => prev.filter((x) => x.publicId !== publicId));
+
+    if (fileRef.current) fileRef.current.value = "";
   }
 
   async function onCreate() {
@@ -105,7 +116,7 @@ export default function NewProductPage() {
         body: JSON.stringify(payload),
       });
 
-      setMsg({ type: "ok", text: "Product created successfully" });
+      setMsg({ type: "ok", text: "Product created successfully ✅" });
 
       setTitle("");
       setCategory("General");
@@ -116,6 +127,7 @@ export default function NewProductPage() {
       setStockQty("");
       setInStock(true);
       setImages([]);
+      if (fileRef.current) fileRef.current.value = "";
     } catch (e: any) {
       setMsg({ type: "err", text: e?.message || "Create failed" });
     } finally {
@@ -130,6 +142,9 @@ export default function NewProductPage() {
           <h1 className="text-3xl md:text-4xl font-bold font-serif text-white">
             Add Product
           </h1>
+          <p className="mt-2 text-sm text-white/80 font-bold">
+            Upload images first, then create the product.
+          </p>
         </div>
 
         <Link
@@ -160,6 +175,7 @@ export default function NewProductPage() {
             <label className="cursor-pointer btn-primary px-4 py-2 text-xs">
               {uploading ? "Uploading..." : "Upload"}
               <input
+                ref={fileRef}
                 type="file"
                 accept="image/*"
                 multiple
@@ -171,7 +187,7 @@ export default function NewProductPage() {
           </div>
 
           <p className="mt-2 text-sm text-white/80 font-bold">
-            Select multiple images.
+            You can select multiple images. You can also upload in batches.
           </p>
 
           <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -242,7 +258,7 @@ export default function NewProductPage() {
               </datalist>
 
               <p className="text-xs text-white/70 font-bold">
-                Tip: pick from suggestions or type a new category.
+                Pick from suggestions or type a new category.
               </p>
             </div>
 
@@ -278,7 +294,7 @@ export default function NewProductPage() {
 
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-[color:var(--accent)]">
-                Description 
+                Description
               </label>
               <textarea
                 className="input"
@@ -306,6 +322,10 @@ export default function NewProductPage() {
             >
               {saving ? "Saving..." : "Create Product"}
             </button>
+
+            <p className="text-xs text-white/70 font-bold">
+              Note: if you don’t enter stock qty, it will save as 0.
+            </p>
           </div>
         </div>
       </div>
